@@ -162,8 +162,8 @@ Given $t:\Lift A$ and $\Lift A: \U_1$, we have $\spl t: A$ and $ A: \U_0$
 \begin{fr}{\secname}
 
 We introduce natural numbers for each stage $i\in\{0,1\}$
-$$
-\begin{aligned}
+
+\begin{align*}
     \pause\mathsf{Nat}_i&:U_i\\
     \pause\mathsf{zero}_i&:\mathsf{Nat}_i\\
     \pause\mathsf{suc}_i&:\mathsf{Nat}_i\to\mathsf{Nat}_i\\
@@ -172,17 +172,17 @@ $$
     &\to ((n:\mathsf{Nat}_i)\to P\,n\to P\,(\mathsf{suc}_i\,n))\\
     &\to(t:\mathsf{Nat}_i)\\
     &\to P\,t\\
-\end{aligned}
-$$
+\end{align*}
+
 \pause
+
 For simplicity, let us define $\mathsf{iter}_i$ to represent \texttt{iter-Nat} from Pie
-$$
-\begin{aligned}
+
+\begin{align*}
     \mathsf{iter}_i&:(X:U_i)\to\mathsf{Nat}_i\to X\to (X\to X)\to X\\
     \mathsf{iter}_i&:=\lambda\,X\,t\,z\,s.\,\mathsf{NatElim}_i\,(\lambda\,\gray n.\,X)\,z\,(\lambda\,\gray n\,\mathsf{acc}.\,s\,\mathsf{acc})\,t\\
+\end{align*}
 
-\end{aligned}
-$$
 \end{fr}
 
 \subsection{Addition and Multiplication}
