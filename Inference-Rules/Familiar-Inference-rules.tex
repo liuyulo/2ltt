@@ -93,15 +93,14 @@ Next, as substitutions are mappings from one context to another, they can be com
 Lastly, substitutions can be extended with a term, and applying an extended substitution to a term is analogous to function application. For instance, if a funtion $f$ is defined as $\lambda\,x.\mathsf{body}$ for some term $\mathsf{body}$ where $x$ might appear in, then the function application $f\,a$ results the same expression as the substitution $\mathsf{body}[\id,a]$ where $(\id,a)$ is the identity substitution extended with the term $a$. Extending a substitution is rarely used in this paper other than for the elimination of naturals, but for completeness, we have these inference rules:
 
 
-\begin{mathparpagebreakable}
+$$
     \inferrule*[lab=sub-extension]
         {\Gamma\vdash\sigma:\Delta\\\Gamma\vdash t:A[\sigma]}
         {\Gamma\vdash(\sigma,t):\Delta\ext A}
-
-    \inferrule*[lab=sub-extension-\circ]
-        {\Delta\vdash\sigma:\Theta\\\Delta\vdash_{i,j}t:A[\sigma]\\\Gamma\vdash\delta:\Delta}
-        {\Gamma\vdash(\sigma,t)\circ\delta=(\sigma\circ\delta,t[\delta]):\Theta\ext A}
-\end{mathparpagebreakable}
+    %\inferrule*[lab=sub-extension-\circ]
+        %{\Delta\vdash\sigma:\Theta\\\Delta\vdash_{i,j}t:A[\sigma]\\\Gamma\vdash\delta:\Delta}
+        %{\Gamma\vdash(\sigma,t)\circ\delta=(\sigma\circ\delta,t[\delta]):\Theta\ext A}
+$$
 
 As we revisit the $\mathsf{double}_0$ example for type-checking and staging, we will intensively apply these inference rules on substitution along with the three staging operations.
 
