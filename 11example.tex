@@ -1,0 +1,77 @@
+
+In this section, we start with an example of a program without staging annotations; then we will convert this program into a metaprogram to demonstrate the usage of staging operations. After introducing inference rules of 2LTT in later sections, we will revisit this example by type-checking and staging it according to the inference rules. 
+
+For now, let's consider a programming language that provides addition for natural numbers. We can implement a multiplication algorithm using the provided addition function recursively. Thus, we can write a program, called $\mathsf{double}:\mathsf{Nat}\to\mathsf{Nat}$ that fixes the first argument of $\mathsf{mul}$:
+
+$$
+\begin{aligned}
+    % \mathsf{Nat}&:\mathsf{U}\\
+    \mathsf{zero}&:\mathsf{Nat}\\
+    \mathsf{suc}&:\mathsf{Nat}\to\mathsf{Nat}\\
+    % \mathsf{NatElim}&:(P:\mathsf{Nat}\to\mathsf{U})\to((i:\mathsf{Nat})\to P\,i\to P\,(\mathsf{suc}\,n))\to P\,\mathsf{zero}\to(n:\mathsf{Nat})\to P\,n\\
+    % \mathsf{NatElim}&\,P\,s\,z\,\mathsf{zero}:=\mathsf{zero}\\
+    % \mathsf{NatElim}&\,P\,s\,z\,(\mathsf{suc}\,n):=s\,n\,(\mathsf{NatElim}\,P\,s\,z\,n)\\
+    % \mathsf{iter}&:(A:\mathsf{U})\to\mathsf{Nat}\to A\to (A\to A)\to A\\
+    % \mathsf{iter}&\,A\,\mathsf{zero}\,z\,s:=s\,z\\
+    % \mathsf{iter}&\,A\,(\mathsf{suc}\,n)\,z\,s:=s\,(\mathsf{iter}\,A\,n\,z\,s)\\
+    % \\
+    \mathsf{add}&:\mathsf{Nat}\to\mathsf{Nat}\to\mathsf{Nat}\\
+    % \mathsf{add}&\,a\,b:=\mathsf{iter}\,a\,b\,\mathsf{suc}\\
+    % \mathsf{add}&:=\lambda\,a\,b.\,\mathsf{iter}\,a\,b\,\mathsf{suc}\\
+    \\
+    \mathsf{mul}&:\mathsf{Nat}\to\mathsf{Nat}\to\mathsf{Nat}\\
+    % \mathsf{mul}&:=\lambda\,a\,b.\,\mathsf{iter}\,a\,\mathsf{zero}\,(\mathsf{add}\,b)\\
+    \mathsf{mul}&\,\mathsf{zero}\,x=\mathsf{zero}\\
+    \mathsf{mul}&\,(\mathsf{suc}\,n)\,x=\mathsf{add}\,x\,(\mathsf{mul}\,n\,x)\\
+    \\
+    \mathsf{double}&:\mathsf{Nat}\to\mathsf{Nat}\\
+    \mathsf{double}&:=\lambda\,x.\,\mathsf{mul}\,(\mathsf{suc}\,(\mathsf{suc}\,\mathsf{zero}))\,x\\
+    % \mathsf{triple}&:\mathsf{Nat}\to\mathsf{Nat}\\
+    % \mathsf{triple}&:=\lambda\,x.\,\mathsf{mul}\,3\,x\\
+\end{aligned}
+$$
+
+Currently, there is no distinction between the stage of our function $\mathsf{mul}$ and $\mathsf{add}$. For the purpose of demonstrating the effect of staging a metaprogram, let us lift the function $\mathsf{mul}$ to stage $1$ and keep $\mathsf{add}$ at stage $0$. The staging algorithm will stage $\mathsf{double}$ into a program with no occurrences of $\mathsf{mul}$. In other words, we can stage the code $\lambda\,x.\,\mathsf{mul}\,(\mathsf{suc}\,(\mathsf{suc}\,\mathsf{zero}))\,x$ into $\lambda\,x.\,\mathsf{add}\,x\,(\mathsf{add}\,x\,\mathsf{zero})$ through substitution with its definition during staging. 
+
+Therefore, we rewrite these function as $\mathsf{mul}_1$ and $\mathsf{add}_0$ to indicate their stage. Because both functions $\mathsf{add}_0$ and $\mathsf{mul}_1$ take a natural number as argument but compute in different stages, we also need each stage to have a type for describing naturals. Thus to distinguish between naturals in these two stages, we index the type by its stage. We define $\mathsf{Nat}_0$ to be the type of natural numbers at stage $0$, and $\mathsf{Nat}_1$ to be the type of natural numbers at stage $1$. We treat these two types as separate types, thus the constructors of these naturals are also indexed: $\mathsf{zero}_1$ and $\mathsf{suc}_1$ for stage $1$, and $\mathsf{zero}_0$ and $\mathsf{suc}_0$ for stage $0$. 
+
+$$
+\begin{aligned}
+    \mathsf{zero}_0&:\mathsf{Nat}_0\\
+    \mathsf{suc}_0&:\mathsf{Nat}_0\to\mathsf{Nat}_0\\
+    \mathsf{add}_0&:\mathsf{Nat}_0\to\mathsf{Nat}_0\to\mathsf{Nat}_0\\
+    \\
+    \mathsf{zero}_1&:\mathsf{Nat}_1\\
+    \mathsf{suc}_1&:\mathsf{Nat}_1\to\mathsf{Nat}_1\\
+    \\
+    \mathsf{mul}_1&:\mathsf{Nat}_1\to{\Uparrow}\mathsf{Nat}_0\to{\Uparrow}\mathsf{Nat}_0\\
+    \mathsf{mul}_1&\,\mathsf{zero}_1\,t=\langle \mathsf{zero}_0\rangle\\
+    \mathsf{mul}_1&\,(\mathsf{suc}_1\,n)\,t=\langle \mathsf{add}_0\,{\sim}t\,{\sim}(\mathsf{mul}_1\,n\,t)\rangle\\
+    \\
+    \mathsf{double}_0&:\mathsf{Nat}_0\to\mathsf{Nat}_0\\
+    \mathsf{double}_0&:=\lambda\,x.\,{\sim}(\mathsf{mul}_1\,(\mathsf{suc}_1\,(\mathsf{suc}_1\,\mathsf{zero}_1))\,\langle x\rangle)\\
+\end{aligned}
+$$
+
+We also rewrite our original double program as $\mathsf{double}_0:\mathsf{Nat}_0\to\mathsf{Nat}_0$ since it is the program we want to stage into the output code. However, the argument of the function $\mathsf{double}_0$, namely $x:\mathsf{Nat}_0$, is passed to $\mathsf{mul}_1$, a function at stage $1$. Therefore, we need to quote this argument as $\langle x\rangle:{\Uparrow}\mathsf{Nat}_0$ to lift $x$ to stage $1$ for the metaprogram $\mathsf{mul}_1$ to compute.
+
+% Notice that the arguments of $\mathsf{mul}_1:\Nat_1\to\Lift\Nat_0\to\Lift\Nat_0$ have different types. The reason is that, while the we fix the first argument of $\mathsf{mul}_1$ in double as $\suc_1\,(\suc_1\,\mathsf{zero}_1)$, the second argument is passed as the quoted argument of $\mathsf{double}_0:\Nat_0\to\Nat_0$. That is, for the arguments of $\mathsf{mul}_1$, we compute the first argument during staging (thus it's a stage $1$ term) while the second argument comes from the argument of $\mathsf{double}_0$ (thus a quoted stage $0$ term).
+
+Therefore, our program $\mathsf{double}_0$ takes a $x:\mathsf{Nat}_0$ as a stage $0$ term, quotes it as $\langle x\rangle:{\Uparrow}A$ to pass it to the metaprogram $\mathsf{mul}_1\,(\mathsf{suc}_1\,(\mathsf{suc}_1\,\mathsf{zero}_1))$, which would gives us a lifted term in stage $1$. Then, we can splice the output of $\mathsf{mul}_1$ to get back a stage $0$ term. 
+
+For the metaprogram $\mathsf{mul}_1$, we follow its recursive definition with respect to the first argument, a $\mathsf{Nat}_1$ from stage $1$. Since $\mathsf{mul}_1$ is a metaprogram that generates a lifted code for stage $0$, namely with type ${\Uparrow}\mathsf{Nat}_0$, we splice the output inside $\mathsf{double}_0$ to bring the term back to stage $0$. Therefore, we quote the base case as $\langle \mathsf{zero}_0\rangle$ and the recursive step as $\langle \mathsf{add}_0\,\cdots\rangle$ to yield these terms during staging. In the recursive step, as $t$ is passed as a ${\Uparrow}\mathsf{Nat}_0$, namely $\langle x\rangle$ from $\mathsf{double}_0$, we splice it to get $x:\mathsf{Nat}_0$ and pass it to the stage $0$ function $\mathsf{add}_0$.
+
+Once we feed this program to the staging algorithm, we will get a well-typed program where the occurrence of $\mathsf{mul}_1$ inside $\mathsf{double}_0$ is substituted by its compile time definition during staging:
+
+$$
+\begin{aligned}
+    \mathsf{zero}_0&:\mathsf{Nat}_0\\
+    \mathsf{suc}_0&:\mathsf{Nat}_0\to\mathsf{Nat}_0\\
+    \mathsf{add}_0&:\mathsf{Nat}_0\to\mathsf{Nat}_0\to\mathsf{Nat}_0\\
+    \\
+    \mathsf{double}_0&:\mathsf{Nat}_0\to\mathsf{Nat}_0\\
+    \mathsf{double}_0&:=\lambda\,x.\,\mathsf{add}_0\,x\,(\mathsf{add}_0\,x\,\mathsf{zero}_0)\\
+\end{aligned}
+$$
+
+

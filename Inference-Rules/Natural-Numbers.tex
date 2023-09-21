@@ -1,0 +1,49 @@
+
+As described in the section on De Bruijn indices, substitutions can be thought as function applications. Therefore, by applying the notation on dependently typed functions, we can the eliminator of $\mathsf{Nat}$ as follows:
+
+$$
+\begin{aligned}
+    \mathsf{NatElim}&:(P:\mathsf{Nat}\to\mathsf{U}_{i,j})\\
+    &\to P\,\mathsf{zero}\\
+    &\to ((n:\mathsf{Nat})\to P\,n\to P\,(\mathsf{suc}\,n))\\
+    &\to(t:\mathsf{Nat})\\
+    &\to P\,t\\
+\end{aligned}
+$$
+
+Therefore, $\mathsf{NatElim}$ takes a motive $P:\mathsf{Nat}\to\mathsf{U}_{i,j}$, a base $z:P\,\mathsf{zero}$, a step function $s:(n:\mathsf{Nat})\to P\,n\to P\,(\mathsf{suc}\,n)$, and a target $t:\mathsf{Nat}$ as arguments; then it eliminates the target to $\mathsf{Nat}\,P\,z\,s\,t:P\,t$. The rules of elimination is described as the $\beta$-reductions, which we can rephrase as:
+
+$$
+\begin{aligned}
+    \textsf{zero-}\beta&:\mathsf{NatElim}\,P\,z\,s\,\mathsf{zero}=z\\
+    \textsf{suc-}\beta&:\mathsf{NatElim}\,P\,z\,s\,(\mathsf{suc}\, n)=s\,n\,(\mathsf{NatElim}\,P\,z\,s\,n)\\
+\end{aligned}
+$$
+
+\begin{example}[Addition and Multiplication]
+    We can implement addition, $\mathsf{add}:\mathsf{Nat}\to\mathsf{Nat}$ between two naturals $a,b:\mathsf{Nat}$ by eliminating $a$ with $\mathsf{NatElim}$. More specifically, on each $\textsf{suc-}\beta$ rule, we wrap $b$ (i.e. the base) with $\mathsf{suc}$:
+
+    $$
+    \begin{aligned}
+        \mathsf{add}&:\mathsf{Nat}\to\mathsf{Nat}\\
+        \mathsf{add}&:\lambda\,a\,b.\,\mathsf{NatElim}\,(\lambda\,\_.\,\mathsf{Nat})\,b\,(\lambda\,\_\,n.\,\mathsf{suc}\,n)\,a\\
+    \end{aligned}
+    $$
+    With $\mathsf{add}$ implemented using the $\mathsf{NatElim}$ from our 2LTT model, we can implement multiplication $\mathsf{mul}\,a\,b$ in a similar manner, by eliminating $a$ with $\mathsf{zero}$ as base case, and perform $\mathsf{add}\,b$ on each \textsc{suc-$\beta$} reduction. Therefore, we can rewrite the example from section 1.1 into well-typed metaprogram in coherenece with our inference rules on $\mathsf{Nat}$s and lifting:
+
+    $$
+    \begin{aligned}
+        \mathsf{add}_0&:\mathsf{Nat}_0\to\mathsf{Nat}_0\to\mathsf{Nat}_0\\
+        \mathsf{add}_0&:=\lambda\,a\,b.\,\mathsf{NatElim}_0\,(\lambda\,\_.\,\mathsf{Nat}_0)\,b\,(\lambda\,\_\,n.\,\mathsf{suc}_0\,n)\,a\\
+        \\
+        \mathsf{mul}_1&:\mathsf{Nat}_1\to{\Uparrow}\mathsf{Nat}_0\to{\Uparrow}\mathsf{Nat}_0\\
+        \mathsf{mul}_1&:=\lambda\,a\,b.\,\mathsf{NatElim}_1\,(\lambda\,\_.\,{\Uparrow}\mathsf{Nat}_0)\,\langle \mathsf{zero}_0\rangle\,(\lambda\,\_\,n.\,\langle \mathsf{add}_0\,{\sim}b\,{\sim}n\rangle)\,a\\
+        \mathsf{two}_1&:=\mathsf{suc}_1\,(\mathsf{suc}_1\,\mathsf{zero}_1)\\
+        \\
+        \mathsf{double}_0&:\mathsf{Nat}_0\to\mathsf{Nat}_0\\
+        \mathsf{double}_0&:=\lambda\,x.\,{\sim}(\mathsf{mul}_1\,\mathsf{two}_1\,\langle x\rangle)\\
+    \end{aligned}
+    $$
+    In a later section, we will stage this metaprogram rigorously through inference rules and get the same result from the introduction.
+\end{example}
+

@@ -1,0 +1,11 @@
+
+The types that we construct in both stages can be treated as terms as well; a type whose terms are also types is called a universe. As universes themselves are types, a hierarchy of universes is formed for each stage. We denote these universes as $\mathsf{U}_{i,j}$ for $i\in\{0,1\}$ and $j\in\mathbb N$ where $i$ indicates the stage and $j$ for the universe level, that is $\mathsf{U}_{i,j}$ is a term of $\mathsf{U}_{i,j+1}$. % The interpretation of types (including universes) as terms can be made explicit with the operators $\mathsf{El}$ and $\mathsf{Code}$, which we will cover in later sections in detail.
+
+In staged programming, the universes $\mathsf{U}_{0,j}$ are inhabited by types from stage $0$ and $\mathsf{U}_{1,j}$ by types from stage $1$. For instance, $\mathsf{Nat}_0$ as a term has the type $\mathsf{U}_{0,0}$ whereas $\mathsf{Nat}_1$ as a term has the type $\mathsf{U}_{1,0}$. As mentioned before, we can lift a stage $0$ type to stage $1$, thus for any $A:\mathsf{U}_{0,j}$, we have ${\Uparrow}A:\mathsf{U}_{1,j}$.
+
+To construct new types, there are type formers (also known as type constructors) for each universe and stage. Type formers takes types as arguments and construct a new type in the same stage. For instance, the $\Pi$-type constructor combines a domain type $A:\mathsf{U}_{i,j}$ and a codomain type $B:\mathsf{U}_{i,j}$ to form the function type $\Pi\,A\,B:\mathsf{U}_{i,j}$ which describes the type of a function that maps an $A$ to a $B$. We notice here $A$ and $B$ are from the same stage. All type formers require the input types to be from the same stage, and outputs a type of the same stage.
+% This function type can also be generalised into a dependent function type $\Pi A B$, which we will formalise in 4.2 with inference rules.  
+ 
+
+
+Up until now, we have given a informal description of the natural number type and staging operations to introduce staged compilation through examples. In the next sections, we formalise these ideas through inference rules.

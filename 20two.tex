@@ -1,0 +1,7 @@
+
+Two-level type theory (2LTT), as the name suggests, extends type theory to two levels, which in our case, are the stages $0$ and $1$. 2LTT is useful since we can extend the language of stage $0$ as the stage $1$ language to derive useful properties that are not expressable within stage $0$; namely, the soundness of a staging algorithm.
+
+To apply 2LTT in staged programming, we consider the languages used in the two stages as separate type systems. This separation provides support for a wide range of languages even with completely different syntax. For instance, staged compilation with 2LTT is applicable to domain specific languages whose implementations are in different languages (e.g. staging LINQ expressions to C\# method calls \cite{linq}). % 2LTT also restricts the interaction between these two theories through the three special operations: quoting, lifting, and splicing.
+
+Since 2LTT formalises our metaprograms and output code into type theories, we provide an example of a 2LTT model that consists of universe hierarchies, type formers with dependent types, and formers/eliminators for natural numbers. We will also present a portion of the inference rules for the purpose of formalising the staging operations and working with natural numbers. Next, we will revisit the $\mathsf{double}_0$ metaprogram for type-checking and applying the staging algorithm with these inference rules. We will then round off this paper with some discussions and conclusion.
+

@@ -1,0 +1,29 @@
+\hypertarget{bibliography}{%
+    \section*{Bibliography}\label{bibliography}}
+
+\begin{itemize}
+\tightlist
+\item
+  \cite{match} explores the practical side of subtyping and type-level programming in nonfunctional languages (namely, Scala) through \emph{match types}, since the support of type-level computations appears mainly in pure functional programming languages like Haskell. The paper also discusses the relation between dependent types and match types; while the former is a well-known mechanism for type-level programming, the latter, on the other hand, also offers a way to perform computations on the type level with the support of subtypes. The soundness of match types is argued through System FM, an extension of System $F_\lt$ with pattern matching at the term and type level. This formalization provides justification on the benefits of match types, which allow programmers to express type constraints in order to catch errors at compile-time rather than at runtime. For instance, the paper presents a safer environment for manipulating n-dimensional arrays compared to the NumPy library. The concept of conditional types in TypeScript is also argued to be unsound in comparison to the design of match types.
+  \begin{itemize}
+      \item \cite{sysfsub} defines System $F_\lt$ (pronounced as F-sub) as an extension of the well-known System F with subtyping. System F itself is an extension of simply typed lambda calculus with polymorphism.
+      \item \cite{exhaustive} describes an algorithm for checking pattern matching exhaustivity. Through static analysis, this algorithm checks that all values are covered by the pattern clauses. In case of \cite{match}, non-exhaustive patterns are accompanied by default cases to prevent runtime exceptions caused by missing cases.
+  \end{itemize}
+\item 
+\cite{10.1145/258994.259019} introduces the idea of multi-staged programming through an SML-like language called MetaML as a generalisation of the two-level notations from \cite{2level} to describe its explicit annotations. These annotations allow programmers to indicate precisely the stage for the code to be evaluated, which leads to simpler semantics and a pragmatic approach to multi-stage programming. For instance, MetaML denotes a family of types as $\langle T \rangle$, which can be seen as "an expression that is a representation of a type $T$ value." While similar ideas already exist in LISP in the form of quasiquote (\texttt{'}), unquote (\texttt{,}), and \texttt{eval}, the implementation in MetaML provides static type checking and promotes code reusability through program generators. The soundness of multi-staged programming is described as \emph{cross-stage persistence} and \emph{cross-stage safety} to ensure that the variables are used in the correct stage. % We will be examining some example codes provided by the authors, and discuss why occasionally the authors lift an expression to a higher stage only to bring it back down immediately. The new language is also much simpler than if the functionality were to be implemented with pure lambda abstraction. 
+% (TODO: Understanding the formal syntax, semantic, type system)
+
+% \item \cite{staged}: Read up to the definition of Types, Context, and Terms. (TODO: Understand the syntax, the inference rules, the meaning of soundness, ) 
+
+\begin{itemize}
+    \item \cite{miniml} extends the notations in \cite{2level} in a logical approach through its language Mini-ML with intuitionistic modal logic. Mini-ML provides a logical view of staged computation while supporting partial evaluation with code-sharing across multiple stages.
+    \item \cite{unify} unifies multi-stage programming (MSP) with macros. With runtime code generation from MSP and compile-time code generation from hygienic macros, the paper combines these two techniques to provide a pleasant experience for writing generative metaprograms.
+\end{itemize}
+
+\item \cite{staged} provides a formalisation and an implementation of staged compilation with full support for dependent types. The paper demonstrates its soundness through two-level type theory (2LTT) and describes the staging-by-compilation process as an analogue to normalisation-by-evaluation. The soundness of staging assures the stability and safety in stage compilation; in other words, the output code is guaranteed to be well-typed and convertible to its original input. With the 2LTT syntax, staged compilation allows programmers to write code-generating programs (i.e. metaprogramming) in an expressive yet concise way using dependent types and object-level code embedding.
+\begin{itemize}
+    \item \cite{2ltt} refines the concept of two-level type theory that was originally presented in \cite{2lttog}. The inner level is described using homotopy type theory (HoTT), while the outer level is the type theory of \href{https://leanprover.github.io/}{Lean}, a programming language similar to \href{https://github.com/the-little-typer/pie}{Pie} with dependent types as well. The additional outer level provides a convenient and concise way of expressing meta-level statements about HoTT.
+    \item \cite{hott} is the main book about homotopy type theory, which, as the name suggests, combines homotopy theory in mathematics with (intuitionistic) type theory. It provides an alternative interpretation of intuitionistic type theory using the ideas and vocabularies from homotopy theory.
+\end{itemize}
+
+\end{itemize}

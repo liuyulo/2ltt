@@ -1,0 +1,79 @@
+We start by listing the forms of judgments defined for 2LTT relevant to our use. We will then explain the meaning of each judgment presented. 
+
+Because there are two different stages in 2LTT, a type in one stage is often not available in the other stage. As 2LTT supports the hierarchy of universes, we need to take into consideration the level we are at when making a judgment. We assume index $i \in \{0, 1\}$ to indicate the stage, and $j \in \mathbb N$ for the universe level. 
+\begin{notation}
+    ``$\Gamma \vdash_{i, j} ...$'' is the notation for making the judgment in stage $i$ and universe level $j$. 
+\end{notation}
+We also use the following convention:
+\begin{itemize}
+    \item Uppercase Greek letters $\Gamma, \Delta$ for context
+    \item Lowercase Greek letters $\sigma, \delta$ for context substitution
+    \item Uppercase alphabet $A, B, C$ for types
+    \item Lowercase alphabet $t, u, v$ for terms
+\end{itemize}
+
+\begin{definition}[Judgments of 2LTT]
+    \begin{alignat*}{2}
+      & \Gamma\vdash\hspace{6em}           && \text{\emph{context formation}}\\
+     & \Gamma\vdash \sigma : \Delta       && \text{\emph{explicit substitution formation, assuming $\Gamma \vdash$ and $\Delta \vdash$}}\\
+     % & \Gamma \vdash \sigma = \delta : \Delta && \text{\emph{substitution equality, assuming $\Gamma \vdash \sigma : \Delta$ and $\Gamma \vdash \delta : \Delta$}}\\
+      & \Gamma\vdash_{i,j} A                && \text{\emph{type formation, assuming $\Gamma\vdash$}}\\
+      & \Gamma\vdash_{i,j} t : A            && \text{\emph{term formation, assuming $\Gamma \vdash_{i,j} A$}}\\
+      & \Gamma \vdash_{i,j} A = B           && \text{\emph{type equality, assuming $\Gamma \vdash_{i,j} A$ and $\Gamma \vdash_{i,j} B$}}\\
+      & \Gamma \vdash_{i,j} t = u : A       && \text{\emph{term equality, assuming $\Gamma \vdash_{i,j} t : A$ and $\Gamma \vdash_{i,j} u : A$}}
+    \end{alignat*}
+\end{definition}
+
+We now explain each judgment in detail.
+
+\begin{definition}[Form of Judgment Context Formation]
+    \begin{alignat*}{2}
+        &\Gamma \vdash \hspace{0.5em} && \text{means ``$\Gamma$ is a context''}
+    \end{alignat*}
+We always have the empty context, denoted as $\emptycon$. Thus, the judgment ``$\emptycon \vdash$'' would be a believable judgment.
+\end{definition} 
+
+
+\begin{definition}[Substitution and De Bruijn Indices]
+    \begin{alignat*}{2}
+        &\Gamma \vdash\sigma:\Delta \hspace{0.5em} && \text{means ``under the context $\Gamma$, $\sigma$ is a substitution from $\Delta$''}
+    \end{alignat*}
+
+In short, a substitution is a mapping of terms and types from one context to another. In particular, $\Gamma\vdash\sigma:\Delta$ means $\sigma$ maps terms and types from the context $\Delta$ to the context $\Gamma$. If $\Delta\vdash_{i,j}A$, that is, $A$ is a type under the context $\Delta$, then we can apply the substitution to derive that $\Gamma\vdash_{i,j}A[\sigma]$, that is, $A[\sigma]$ is a type under the context $\Gamma$. We will discuss applying substitions in detail through inference rules in later sections.
+
+For this paper, we only work with the \emph{weakening substitution} $\p$ for the purpose of employing De Bruijn indices. The De Bruijn index is a convenient way of refering to the terms in a context without putting them in it explicitly. Again, we will provide examples in the section of inference rules.
+\end{definition}
+
+
+\begin{definition}[Forms of Judgment for Type and Term Formation]
+    \begin{alignat*}{2}
+        & \Gamma \vdash_{i, j} A && \text{means ``$A$ is a type of stage $i$ , universe level $j$''} \\
+        &\Gamma \vdash_{i, j} t:A \hspace{2em} && \text{means ``$t$ is a term of type  $A$ in stage $i$, universe level $j$ ''}
+    \end{alignat*}
+    
+\end{definition}
+
+\begin{example}
+  The expression ``$\Gamma \vdash_{1, 10} A$'' means ``$A$ is a type in stage 1 and universe level 10''     
+\end{example}
+
+
+\begin{example}
+    Consider the two $\Nat$ types for the two stages: $\Nat_0$ and $\Nat_1$. While the type $\Nat_0$ belong strictly in stage 0, the type $\Nat_1$ is in stage 1. 
+    So $\Gamma \vdash_{0, j} \Nat_0$ would be a believable judgment, but $\Gamma \vdash_{1, j} \Nat_0$ is not believable.
+\end{example}
+
+The judgment ``$\Gamma \vdash_{i, j} A$'' makes the presupposition that $\Gamma$ is a valid context ($\Gamma \vdash$). The judgment ``$\Gamma \vdash_{i,j} t:A$'' assumes $A$ is a type in stage $i$ universe level $j$ ($\Gamma \vdash_{i, j} A$)
+
+\begin{definition}[Forms of Judgment for Type and Term Equality]
+    \begin{alignat*}{2}
+        &\Gamma \vdash_{i, j} A = B &&\text{means ``$A$ and $B$ are the same type in stage $i$, universe level $j$''} \\
+        &\Gamma \vdash_{i, j} t=u:A \hspace{2em} &&\text{means ``$t$ and $u$ are the same term of type $A$ in stage $i$, universe level $j$''}
+    \end{alignat*}
+\end{definition}
+
+Judgmental equality also require specifying the stage and universe level. They also come with the presupposition that the two expressions in comparison are from the same stage and universe.
+
+\begin{example}[Ill-formed Judgment]
+    $\Gamma \vdash_{0, 0} \Nat_0 = \Nat_1$ is not well formed. Although $\Gamma \vdash_{0, 0} \Nat_0$ is believable, $\Gamma \vdash_{0, 0} \Nat_1$ is not believable. So we cannot judge the equality of the two types. 
+\end{example}

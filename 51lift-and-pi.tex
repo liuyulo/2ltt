@@ -1,0 +1,91 @@
+In mathematics, \emph{isomorphism} describes a bijective function that preserves ``properties''. The properties an isomorphism preserves can differ from context to context. 
+
+% \begin{example}[Isomorphisms in Different Context]
+%     In graph theory, an isomorphism between two finite graphs $G = (V, E), G' = (V', E')$ is a bijective function $f: V \to V'$ such that $\{v, u\} \in E \Leftrightarrow \{f(v), f(v)\} \in E'$. In this case, the property the isomorphism preserves is the "connectivity" of the graph.
+
+%     In set theory, an isomorphism between two linearly ordered sets $(P, <), (Q, \prec)$ is a bijective function $f: P \to Q$ such that $a < b \Leftrightarrow f(a) \prec f(b)$. In this case, the property the isomorphism preserves is the "ordering" of the set.
+% \end{example}
+
+
+\begin{definition}[Isomorphic]
+    If there is an isomorphism between two sets $A, B$, we call these two sets \emph{isomorphic}.
+\end{definition}
+
+We do not believe $\Lift (\Pi\,A\,B)$ is the same type as $\Pi\,(\Lift A)\,(\Lift B)$. However, it is possible to show that there two types are similar enough that we can consider them to be isomorphic. 
+
+% \begin{notation}[Alternative Notation for Dependent Type]
+%     We sometimes write $(x : A) \to B\,x$ as supposed to $\Pi\,A\,B$. $(x : A) \to B\,x$ means a function that has:
+%     \begin{itemize}
+%         \item Input of type $A$, with the input denoted $x$.
+%         \item Output of type $Beeeee\,x$, where output type is depended on the input term value.
+%     \end{itemize}
+% \end{notation}
+
+To set up the demonstration, we first define two functions.
+
+\begin{definition}[Transformation between $\Lift((x : A) \to B\,x)$ and $(x : \Lift A) \to \Lift\,(B\,\spl x)$] We define two functions:
+    \begin{align*}
+        &pres_\to: \Lift((x : A) \to B\,x) \to ((x : \Lift A) \to \Lift\,(B\,\spl x)) \\
+        &pres_\to := \lambda\,f.\,\,\lambda\,x.\,\,\qut{\spl f\,\spl x}\\
+        &pres_\to^{-1}: ((x : \Lift A) \to \Lift\,(B\,\spl x)) \to \Lift((x : A) \to B\,x)\\
+        &pres_\to^{-1} := \lambda\,f.\,\,\qut{\lambda\,x.\,\,\spl(f \qut{x})}
+    \end{align*}
+\end{definition}
+
+\begin{remark}[$pres_\to$ and $pres_\to^{-1}$ don't modify the input function]
+    We now demonstrate $pres_\to$ and $pres_\to^{-1}$ does not modify the input function's behaviour. We do so by showing it is possible to recover the original function through an inverse operation. \\
+    Let $f: (x : \Lift A) \to \Lift\,(B\,\spl x)$. Consider the following reduction:\\
+    \begin{align*}
+      pres_\to (pres_\to^{-1} f)
+      &=(\lambda\,f. \,\,\lambda\,x.\,\,\qut{\spl f\,\spl x})\,\, ((\lambda\,f.\,\,\qut{\lambda\,x.\,\,\spl(f\,\qut{x})})\,\, f) \\
+      &= (\lambda\,f.\,\,\lambda\,x.\,\,\qut{\spl f\,\spl x})\,\, \qut{\lambda\,x.\,\,\spl(f\,\qut{x})} \tag{$\beta$-reduction}\\
+      &= \lambda\,x.\,\,\qut{\spl \qut{\lambda\,x.\,\,\spl(f\,\qut{x})}\,\spl x} \tag{$\beta$-reduction}\\
+      &= \lambda\,x.\,\,\qut{(\lambda\,x.\,\,\spl(f\,\qut{x}))\,\spl x} \tag{\textsc{splice-quote}}\\
+      &= \lambda\,x.\,\,\qut{\spl(f\,\qut{\spl x})} \tag{$\beta$-reduction}\\
+      &= \lambda\,x.\,\,\qut{\spl(f\, x)} \tag{\textsc{quote-splice}}\\
+      &= \lambda\,x.\,\,(f\, x) \tag{\textsc{quote-splice}}\\
+      &= f \tag{Function $\eta$-reduction}
+    \end{align*}
+\end{remark}
+
+
+\smallskip
+Now we are ready to demonstrate that the lifting process possesses isomorphic behaviour. For those more comfortable with mathematics, and isomorphism $\phi$ often satisfies the following structure: 
+$$\phi(fa) = \phi(f)\phi(a)$$
+
+Ideally, we would define for all $x$, $\phi(x) = \qut{x}$, and show $\qut{f\, a} = \qut{b} = \qut{f}\,\qut{a}$ to match the structure. However, because the expression  $(\qut{f}\,\qut{a})$ is undefined due to type mismatch, we achieve a similar structure by $pres_\to$ to $\qut{f}$ first, which doesn't change $f$'s behaviour as shown. With that, we will show the lifting process possesses properties of isomorphism.
+
+\begin{example}[The effect of lifting]
+    Let $f: (x: A) \to B\,x$, and $a: A, b: (B\,a)$ such that $f\,a = b$, then we have the following reduction:
+
+    \begin{align*}
+        (pres_\to \qut{f}) \qut{a} 
+        &= ((\lambda\,f\,x.\,\,\qut{\spl f \,\, \spl x}) \,\, \qut{f}) \,\, \qut{a} \\
+        &= (\lambda\,x.\,\,\qut{\spl \qut{f} \,\, \spl x}) \,\, \qut{a} \\
+        &= \qut{\spl \qut{f} \,\, \spl \qut{a}} \\
+        &= \qut{f \,\, a} \\
+        &= \qut{b}
+    \end{align*}
+\end{example}
+
+
+
+
+
+
+% \begin{remark}[$pres_\to$ and $pres_\to^{-1}$ Cancel out During Staging]
+%     Let $f: (x : \Lift A) \to \Lift\,(B\,\spl x)$, the input type of $pres_\to^{-1}$, consider the following reduction:\\
+%     \begin{align*}
+%       pres_\to (pres_\to^{-1} f)
+%       &=(\lambda\,f. \,\,\lambda\,x.\,\,\qut{\spl f\,\spl x})\,\, ((\lambda\,f.\,\,\qut{\lambda\,x.\,\,\spl(f\,\qut{x})})\,\, f) \\
+%       &= (\lambda\,f.\,\,\lambda\,x.\,\,\qut{\spl f\,\spl x})\,\, \qut{\lambda\,x.\,\,\spl(f\,\qut{x})} \tag{$\beta$-reduction}\\
+%       &= \lambda\,x.\,\,\qut{\spl \qut{\lambda\,x.\,\,\spl(f\,\qut{x})}\,\spl x} \tag{$\beta$-reduction}\\
+%       &= \lambda\,x.\,\,\qut{(\lambda\,x.\,\,\spl(f\,\qut{x}))\,\spl x} \tag{\textsc{splice-quote}}\\
+%       &= \lambda\,x.\,\,\qut{\spl(f\,\qut{\spl x})} \tag{$\beta$-reduction}\\
+%       &= \lambda\,x.\,\,\qut{\spl(f\, x)} \tag{\textsc{quote-splice}}\\
+%       &= \lambda\,x.\,\,(f\, x) \tag{\textsc{quote-splice}}\\
+%       &= f \tag{Function $\eta$-reduction}
+%     \end{align*}
+    
+%     This shows us 
+% \end{remark}

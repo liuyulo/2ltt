@@ -1,0 +1,193 @@
+We now move on to the new addition 2LTT brings to the table, \emph{lifting}, \emph{quoting}, and \emph{splicing}. Of all the inference rules we introduced so far, the premise and conclusion does not modify the index $i$ that represents the stage. We are going to address that by introducing inference rules that allows that.
+
+\subsubsection{Lifting}
+We start with \emph{lifting}. Syntactically, we define the annotation ``$\Lift \blank$'' (``$\blank$'' is placeholder for specific type). Stage 0 types are the only valid arguments that can be used in place of ``$\blank$''. The behaviour of lifting is as follows:
+
+\begin{mathparpagebreakable}
+    \inferrule*[lab=lift]
+             {\Gamma \vdash_{0,j} A}
+             {\Gamma \vdash_{1,j} \Lift A}
+
+  \inferrule*[lab=lift-sub]
+             {\Gamma \vdash \sigma : \Delta \\ \Delta \vdash_{0,j} A}
+             {\Gamma \vdash_{1,j} (\Lift A)[\sigma] = \Lift(A[\sigma])}             
+\end{mathparpagebreakable}
+
+We see that given a type $A$ in stage 0, universe level $j$, applying lift to $A$ creates a new type $\Lift A$ in stage 1 of the same universe level. 
+
+\begin{example}[Examples of Lifted Types]
+    $\Lift\Nat_0, \Lift(\Pi\,\Nat_0\,\Nat_0)$ are examples of types that are in stage 1.
+\end{example}
+
+\begin{remark}[Lift and Native types are not the same]
+    Both stage 0 and 1 has the type $\Nat$, denoted $\Nat_0, \Nat_1$. And we have
+    \begin{mathparpagebreakable}
+        \inferrule*
+             {\Gamma \vdash_{0,0} \Nat_0}
+             {\Gamma \vdash_{1,0} \Lift \Nat_0}
+
+        \inferrule*
+            { }
+            {\Gamma \vdash_{1, 0} \Nat_1}
+    \end{mathparpagebreakable}
+        However, $\Lift \Nat_0$ is \emph{not} the same type as $\Nat_1$
+\end{remark}
+
+\begin{example}[Not Lifted Type]
+    The type $(\Pi\,\Lift \Nat_0\,\Lift \Nat_0)$ is not a lifted type. It is a $\Pi$-type with domain and co-domain being lifted types. We demonstrate this with the inference tree below:
+    \begin{mathparpagebreakable}
+        \inferrule*[right=$\Pi$]
+        {   
+            \inferrule*[left=Lift]
+            {
+                \inferrule*[left=Nat]
+                { }
+                {\emptycon \vdash_{0, 0} \Nat_0}
+            }
+            {\emptycon \vdash_{1, 0} \Lift \Nat_0} \\ 
+            \inferrule*[right=lift]
+            {
+                \inferrule*[right=nat]
+                {
+                    \inferrule*[right=cxt-extension]
+                    {
+                        \inferrule*[right=Lift]
+                        {
+                            \inferrule*[right=nat]
+                            { }
+                            {\emptycon \vdash_{0, 0} \Nat_0}
+                        }
+                        {\emptycon \vdash_{1, 0} \Lift \Nat_0}
+                    }
+                    {\emptycon \ext \Lift \Nat_0 \vdash}
+                }
+                {\emptycon \ext \Lift \Nat_0 \vdash_{0, 0} \Nat_0}
+            }
+            {\emptycon \ext \Lift \Nat_0 \vdash_{1, 0} \Lift \Nat_0}
+        }
+        {\emptycon \vdash_{1, 0} \Pi\,\Lift \Nat_0\,\Lift \Nat_0}
+    \end{mathparpagebreakable}
+    As we see at the bottom of the inference tree, the final step of inference is not \textsc{Lift}, so the type $\Pi, \Lift \Nat_0 \, \Lift \Nat_0$ is not a lifted type, but a stage 1 $\Pi$ type. 
+\end{example}
+
+\begin{remark}\label{lift-not-equal-native}
+    We \emph{do not} believe the following judgment is true:
+    $$\Gamma \vdash_{1, j} \Lift(\Pi\,A\,B) = \Pi\,\Lift A\,\Lift B$$
+    However, as we will show in later section, there is a way to transform a term of type $\Pi\, \Lift A\,\Lift B$ into a lifted type. 
+\end{remark}
+\smallskip
+\begin{remark}[Lift v.s. Stage Index]
+   Let $A$ be a type that exists in both stages, denoted $A_0$ and $A_1$. We emphasis $\Lift A_0 \neq A_1$. 
+\end{remark}
+\smallskip
+
+In another word, a lifted type $A$ from stage 0 is not equal to the equivalent to the same type $A$ native to stage 1. This is a small but important detail. 
+
+\smallskip
+
+\begin{remark}[Lifted Types Do Not Have Eliminator]
+    There is \emph{no} general elimination rule for $\Lift A$.
+\end{remark}
+
+\begin{example}
+    Take $\Bool_1$ and $\Lift \Bool_0$. Where $\Bool_{1/0}$ are the respective boolean type of stage 1 and 0 
+    
+    Unlike $\Bool_1$, $\Lift \Bool_0$ does not have eliminator. As a result, a function of type $\Pi\, \Lift \Bool_0\, \Bool_1$ would have to be a constant function, because there are no stage 1 eliminator that can inspect the internal of a term of type $\Lift \Bool_0$, and all eliminator eliminates a term to another term in the same stage.
+
+    One might attempt to counter with the following function:
+
+    $$f := \lambda b.\,\, \msf{if}\,\, \spl b\,\, \msf{then}\,\, \qut{\msf{True}_0}\,\, \msf{else}\,\, \qut{\msf{False}_0}$$
+    
+    However, this function outputs terms of type $\Lift \Bool_0$, which as we mentioned in $remark$ \ref{lift-not-equal-native}, is not the same type as $\Bool_1$.
+\end{example}
+
+No eliminator for $\Lift A$ will restrict terms we can produce, and a trade-off for the program to behave in a predictable manner. 
+
+
+
+
+
+\subsubsection{Quoting}
+We now introduce \emph{quoting}, used to create a term of lifted type. Quoting is assigned the annotation $\qut{\blank}$, (``$\blank$'' is placeholder for specific term). Its inference rule is as followed
+
+\begin{mathparpagebreakable}
+    \inferrule*[lab=quote]
+             {\Gamma \vdash_{0,j} t : A}
+             {\Gamma \vdash_{1,j} \qut{t} : \Lift A} 
+
+
+  \inferrule*[lab=quote-sub]
+             {\Delta \vdash_{0,j} t : A \\ \Gamma \vdash \sigma : \Delta}
+             {\Gamma \vdash_{1,j} \qut{t}[\sigma] = \qut{t[\sigma]} : \Lift (A[\sigma])}
+
+\end{mathparpagebreakable}
+
+Given a term $t$ of type $A$ in stage 0, quoting $t$ to $\qut{t}$ gives us a term of type $\Lift A$ in stage 1.
+
+\begin{example}[Examples of Quoted Terms]
+    Some examples of quoted terms are
+    \begin{itemize}
+        \item $\qut{\zero_0}$ has type $\Lift \Nat_0$
+        \item $\qut{\lambda x . \suc\,x }$ has type $\Lift (\Nat_0 \to \Nat_0)$
+    \end{itemize}
+\end{example}
+
+\subsubsection{Splicing}
+Lastly we have \emph{splicing}. Splicing has the annotation $\spl \blank$ (``$\blank$'' is placeholder for specific term). Splice also has the highest precedence, even higher than function application. So $\spl\, f \,x$ parses to $(\spl\,f)\,x$. Splicing comes with the inference rule:
+
+\begin{mathparpagebreakable}
+\inferrule*[lab=splice]
+             {\Gamma \vdash_{1,j} t : \Lift A}
+             {\Gamma \vdash_{0,j} \spl{t} : A}
+\end{mathparpagebreakable}
+
+Splice is used to bring a stage 0 term that has been lifted to stage 1 back down to 0.
+
+\begin{remark}
+    We can quote any term $t$ of type $A$ if $A$ is a type in stage 0.
+    However, not every term $s$ of type $B$ in stage 1 can be spliced.
+    For example, $\zero_1$ cannot be spliced because $\zero_1$ is of type $\Nat_1$, and $\Nat_1$ is not a lifted type. 
+\end{remark}
+
+\subsubsection{Interaction Between Quoting and Splicing}
+There are two more inference rules that tells us $\qut{\blank}$ and $\spl \blank$ are inverses of each other:
+\begin{mathparpagebreakable}
+    \inferrule*[lab=quote-splice]
+             {\Gamma \vdash_{1,j} t : \Lift A}
+             {\Gamma \vdash_{1,j} \qut{\spl{t}} = t : \Lift A}
+
+    \inferrule*[lab=splice-quote]
+             {\Gamma \vdash_{0,j} t : A}
+             {\Gamma \vdash_{0,j} \spl{\qut{t}} = t : A}
+\end{mathparpagebreakable}
+
+\begin{example}[Elimination]
+    The term $\suc\,(\suc\,\zero_0)$ is judgmentally the same $\Nat_0$ as $\spl \qut{\suc\,(\suc\,\zero_0)}$
+\end{example}
+
+This makes intuitive sense. If no computation is done in between lifting and splicing, we should expect to get back the same term. 
+
+% An interesting observation is the similarity between these two inference rules and $\eta$-rules for other types:
+
+% \begin{mathparpagebreakable}
+%     \inferrule*[lab=$\Sigma$-$\eta$ (2LTT)]
+%              {\Gamma \vdash_{i,j} t : \Sigma\,A\,B}
+%              {\Gamma \vdash_{i,j} (\fst\,t,\,\snd\,t) = t : \Sigma\,A\,B}
+             
+%     \inferrule*[lab=$\Sigma$-$\eta$ (The Little Typer)]
+%             {\Gamma \vdash p_1 \equiv p_2 : (\Sigma\,([x \,A])\,D)}
+%             {\Gamma \vdash p_1 \equiv (\mathsf{cons}\,(\mathsf{car}\,p_2)\,(\mathsf{cdr}\,p_2)) : (\Sigma\,([x\, A])\, D)}
+
+%     \inferrule*[lab=FunSame-$\eta$ (The Little Typer)]
+%             {x \notin dom(\Gamma) \\ \Gamma \vdash f_1 \equiv f_2 : (\Pi\,([x \,Arg])\, R)}
+%             {\Gamma \vdash f_1 \equiv (\lambda\,(x)\,(f_2 \,x)) : (\Pi\,([x \,Arg])\, R)}
+% \end{mathparpagebreakable}
+
+% We thus suggests that splicing then quoting ($\qut{\spl \blank}$), and quoting then splicing ($\spl \qut{\blank}$) are the $\eta$-rules for staging annotation.
+
+One may ask why we have two annotations $\qut{\blank}$ and $\spl$ for terms, which are inverses of each other, but only one annotation, the $\Lift$ for types? To answer this, we consider the origin of 2LTT where it was intended to make meta-theoretical results of homotopy type theory internal \cite{2ltt}. We now understand stage 0 being the object-level and stage 1 being the meta-level. There is usually a way of representing object or concepts of the object-level in meta-level. However, with object-level usually being simpler, there are concepts in the meta-level which cannot be represented in the object-level. To make an analogy, $\mathbb N$ in meta-level might be defined as a subset of $\mathbb R$, while $\mathbb N$ in object-level is defined using Peano Arithmetic. In such situation, we cannot guarantee the correctness of bringing $\mathbb N$ from meta-level down to object level. 
+
+In fact, $\qut{\spl \blank}$ is not the identity function on all terms $t$ in stage 1, but only terms like $\qut{s}$ that were lifted from stage 0. The inventors of 2LTT phrased it as such:
+\begin{quote}
+    One intuition for the two levels is as follows: from a type in HoTT [Homotopy Type Theory, the inner type theory], we can extract a statement that can be phrased in the meta-theory. From a meta-theoretical statement \emph{about} HoTT, it is not always possible to construct a type. Thus, we can convert inner types into outer one, but not always vice versa \cite{2ltt}.
+\end{quote}

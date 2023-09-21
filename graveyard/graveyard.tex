@@ -1,0 +1,311 @@
+% 2ltt definitions
+
+% \begin{itemize}
+% \tightlist
+% \item
+%   universe (2.1.1)
+% \item
+%   type formers (2.1.2)
+% \item
+%   nat, list, vec (2.2) \textcolor{red}{I think the stage compilation paper only talks about Nat and Trivial, maybe read into 2LTT original paper}
+% \item
+%   staging (informal)
+% \end{itemize}
+
+% 2ltt examples
+
+% \begin{itemize}
+% \tightlist
+% \item
+%   polymorphic functions (2.2)
+
+%   \begin{itemize}
+%   \tightlist
+%   \item
+%     id (in two stages)
+%   \item
+%     map, foldr, iter-nat (2.2)
+%   \end{itemize}
+% \item
+%   (?) STLC interpreter (2.2)
+% \end{itemize}
+
+% 2ltt staging algorithm (4)
+
+% \begin{itemize}
+% \tightlist
+% \item
+%   definition (4.1)
+
+%   \begin{itemize}
+%   \tightlist
+%   \item
+%     embedding (def 3.7)
+%   \item
+%     2ltt model (def 3.2)
+
+%     \begin{itemize}
+%     \tightlist
+%     \item
+%       Ty, Tm, Con, Sub
+%     \item
+%       category with terminal object
+%     \end{itemize}
+%   \end{itemize}
+% \end{itemize}
+
+
+% \hypertarget{abstract}{%
+% \section*{Abstract}\label{abstract}}
+
+% In this literature review, we will summerise and analyse how staged compilation and match types provide additional expressiveness through extended type systems with dependent types. Before getting into staged compilation, we will take a look at two-level type theory (2LTT) as 2LTT provides a safe environment for meta-level programming with full support of dependent types in the implementation of a two-stage compilation process. On the practical side, we will discuss how 2LTT can be used to implement C-style macros from MetaML with additional features and benefits. We will also discuss the benefits of match types in static program analysis. Formalised as an extension of the System $F_\lt$ with dependent types, match types provides a significant additional expressiveness in the realm of type-level programming. As an example, we will discuss how the NumPy library can be made type-safe with match types to illustrate the ability to express complex type constraints that can detect errors related to matrice reshaping at compile time.
+
+% %===================================================================%
+% %                                                                   %
+% %                                                                   %
+% %                                                                   %
+%                Formal 2LTT and Category                             %
+% %                                                                   %
+% %                                                                   %
+% %                                                                   %
+% %===================================================================%
+% \section{Formal Definition of 2LTT}
+
+% (todo ``Formal Specification'' might be better)
+
+% \hypertarget{overview-of-category-theory}{%
+% \subsection{Overview of Category Theory}\label{overview-of-category-theory}}
+
+% As with many algebraic structures, the structure of tying can also be interpreted as categories. Since categories are closely related to functional programming and type theory in general, we shall first introduce categories briefly and extend this model in relation to types and terms.
+
+% (todo paragraph vs itemize for category definition)
+
+% A category $\mathbb C$ consists of a collection of objects and morphisms. Each morphism possesses a domain and a codomain as objects. Similar to total functions from set theory, two morphisms $f:A\to B$ and $g:B\to C$ can be composed into a new morphism, $gf:A\to C$. The composition is associative and has an identity morphism $\mathsf{id}_A$ for any object $A$.
+
+% \begin{definition}[Category]
+
+% A \emph{category} $\mathbb C$ consists of:
+
+% \begin{itemize}
+% \item
+%   A collection of \emph{objects}.
+% \item
+%   For each pair of objects $A, B$ a collection of \emph{morphisms} that goes from $A$ to $B$. Each morphism is denoted $f : A \to B$.
+% \item
+%   A way to \emph{compose} morphisms: If we have $f: A \to B$ and $g: B \to C$, then there is a morphism $g \circ f: A \to C$.
+% \end{itemize}
+
+% Such that it satisfies the following requirements:
+
+% \begin{enumerate}
+% \def\labelenumi{\arabic{enumi}.}
+% \item
+%   \emph{Associative}: $h \circ (g \circ f)$ should be the same morphism as $(h \circ g) \circ f$.
+% \item
+%   \emph{Identity}: For every object $A$, there is an identity morphism $id_A$ from $A$ to $A$, such that for any morphism $f$ from $X$ to $Y$, $id_Y \circ f$ is the same morphism as $f \circ id_X$.
+% \end{enumerate}
+
+% \end{definition}
+
+
+% \begin{example}[$\Set$]
+%     Consider the category of sets, denoted $\Set$, which contains:
+%     \begin{itemize}
+%         \item Objects as sets
+%         \item Between set $A$ and set $B$, collection of total functions $f: A \to B$ as morphisms
+%         \item The usual function composition as the operator on morphisms. 
+%     \end{itemize}
+%     We already know that function composition is associative, and for each set $A$, we have the identity function $id_A(x) = x$ that does not affect input or output. With all requirements satisfied, we say $\Set$ is a category
+% \end{example}
+
+% The terms ``object'' and ``morphism'' hints at the broadness of category theory, and one need not restrict themselves to functions as morphisms and sets as objects.
+
+% \hypertarget{2LTT-Category}{
+% \subsection{Formal Model of 2LTT}}
+% The formal model of 2LTT uses \textit{categories with families}, a specific kind of category developed by Simon Castellan \cite{CWF}. This choice yields a type theory goes beyond analyzing types and terms, but also contexts. 
+
+% \begin{definition}[Model of Basic 2LTT]
+%     A category $\mathbb C$ with the following:
+%     \begin{itemize}
+%         \item A set of objects denoted as $\Con_{\mathbb C}$, representing all valid contexts.
+%         \begin{itemize}
+%             \item has a terminal object, denoted as $\bullet$, with a unique morphism $\epsilon_{\Gamma} \in \Sub \; \Gamma \; \bullet$ for any object $\Gamma$
+%         \end{itemize}
+%         \item Between each pair of contexts $\Gamma, \Delta$ a set of morphisms denoted as $\Sub \; \Gamma \; \Delta:\mathsf{Set}$. This representing ``substituting'' some of the information in the context $\Delta$ with infomation from the context $\Gamma$. 
+%     \end{itemize}
+% \end{definition}
+
+% ($\Sub\;\Gamma\;\Delta$ is analogous to $\mathbb C(\Gamma,\Delta)$, i.e. collection of morphisms $\delta:\Gamma\to\Delta$)
+
+% ($\Con_{\mathbb C}$ is $\mathsf{obj}\mathbb C$)
+
+% We will discuss the meaning of substitution shortly in later section.
+% (todo semantics of $\Sub\;\Gamma\;\Gamma$ and $\Sub\;\Gamma\;\bullet$)
+
+
+
+% The formal model of basic 2LTT can then be thought of as a category modelling all possible contexts and ways of substituting one for another. The special object $\bullet$ is used to denote the empty context. 
+
+% For the majority of this section, we will omit the subscript $\mathbb C$, as we are only dealing with one category.
+
+% \subsection{Additional Structures to 2LTT's Category}
+
+% With the model we have defined, we now add additional structures to our category of 2LTT, mostly in the form of mapping. These will give rise to types, terms, inference rules, and other concepts we are more familiar with. 
+
+% \subsubsection{Types and Terms}
+% There are a pair of function like objects that takes in a context and produces either types or terms. For each $i \in {0, 1}$ and $j \in \mathbb{N}$, we have $\Ty_{i, j} : \Con \to \Set$ that maps a context to types that can be produced by that context. We also have $\Tm_{i, j} : (\Gamma : \Con) \to \Ty_{i, j} \Gamma \to \Set$ that takes a context, a type that can be produced in that context, and map them to all possible terms of said type. 
+
+% \begin{example}
+%     Given a context $\Gamma$, $\Ty_{i, j}\,\Gamma$ would be the collection of all types that are valid under the context $\Gamma$ at stage $i$, universe $j$. If we then take one such valid type $A$ out, then $\Tm_{i, j}\,\Gamma\,A$ would be the collection of all terms with type $A$ under the context $\Gamma$ at stage $i$, universe $j$.
+% \end{example}
+
+% \subsubsection{Substitution}
+% As mentioned in \hyperlink{2LTT-Category}{the model of 2LTT}, the model can express relationships between contexts. Here we introduce the idea of substitution.
+% We first conceptualize contexts as a list of pair, each pair a term and a type
+% \begin{example}[Context Conceptualized]
+%     A \textit{context} $\Gamma$ maybe thought of as $\Gamma=\{x_1: A_1, ..., x_n: A_n\}$, where $x_i$ is a term, and $A_i$ is a type.
+% \end{example}
+
+% \begin{definition}[Substitution (Informal)]
+%     Given a context $\Gamma$, a \textit{substitution} with $\Delta$ is the process of replacing free variables $x_i : A_i$ in $\Gamma$ with some term $a_i: A_i$ from $\Delta$.
+% \end{definition}
+
+% We can now also define what it means to compose two substitutions $\sigma \circ \delta$.
+
+% %===================================================================%
+% %                                                                   %
+% %                                                                   %
+% %                                                                   %
+% % TODO should talk about what does it mean to compose substitutions %
+% %                                                                   %
+% %                                                                   %
+% %                                                                   %
+% %===================================================================%
+
+
+
+% We add a new structure to our category to represent this process, and give it the following notation:
+% \begin{alignat*}{3}
+%     & \blank\![\blank\!] &&: \Ty_{i,j}\,\Delta \to \Sub\,\Gamma\,\Delta \to \Ty_{i,j}\,\Gamma \\
+%     & \blank\![\blank\!] &&: \Tm_{i,j}\,\Delta\,A \to (\sigma : \Sub\,\Gamma\,\Delta) \to \Tm_{i,j}\,\Gamma\,(A[\sigma])
+% \end{alignat*}
+
+% To ease understanding, remember that $Ty_{i, j}\,\Delta$ is types that can be produced by the context $\Delta$, and $\Tm_{i,j}\,\Delta\,A$ is terms that are of type $A$ under the context $\Delta$. So we translate the definition of substitution into:
+% \begin{itemize}
+%     \item Take in set of all well formed types under the context $\Delta$ and a way of substituting $\Delta$ with $\Gamma$, we produce a set of all well formed types under the context $\Gamma$, and
+%     \item Take in a valid term under the context of $\Delta$ with a type $A$, and a way of substituting $\Delta$ with $\Gamma$, we produce a term that is well formed under the context $\Gamma$ with the type of $A$ substituted by the context of $\Gamma$
+% \end{itemize}
+
+% The substitution behaves in a way similar to homomorphism. Where $A[\mathsf{id}] = A$ and $A[\sigma \circ \delta] = A[\sigma][\delta]$
+
+
+
+
+% \subsubsection{Context Extension}
+% (comprehension structure)
+% \begin{property}[Context Extension]
+%     Given a context $\Gamma : \Con$ and a type $A : \Ty_{i, j} \,\Gamma$, we have the \emph{context extension} $\Gamma\,\ext\,A$.
+% \end{property}
+% Much to the spirit of category theory, it is not clear how this extended object should look like. However, we do restrict its behaviour when in contact with substitution. Consider applying the same substitution on $\Delta$ and $\Delta \ext A$  ($\Delta$ extended with type $A$), using the same $\Gamma$. The effect of these two substitution should be the same up until the added type. 
+
+% András Kovács \cite{staged} expressed this by requiring there to be a 
+% \begin{quote}
+%     natural isomorphism $\Sub\,\Gamma (\Delta \ext A) \simeq (\sigma : \Sub\,\Gamma\,\Delta) \times \Tm_{i,j}\,\Gamma\,(A[\sigma])$
+% \end{quote}
+
+% (todo \textcolor{red}{not sure why is this a natural transformation, where's my functors?})
+
+% \emph{Natural transformation} here can be interpreted as ``There exists a property preserving bijective function between the two sets''. In this case, we see that each substitution of $\Delta\,\ext\,A$ with $\Gamma$ can be deconstructed into the substitution of $\Delta$ with $\Gamma$, and substitution of $A$ with some term that is valid in the context of $\Gamma$. This captures the concept that substituting one term should have no effect on substituting the rest of the context.
+
+
+% \subsubsection{Structures of Functional Programming and Dependent Types}
+% We now move on to adding structures that would be able to represent how types and terms behave.
+
+% (todo notation $\Gamma\ext(x:A)$ and $B[x\to t]$)
+
+% \begin{itemize}
+%     \item \emph{Universes}: We claim that regardless of the the context $\Gamma$, we have $\U_{i,j} : \Ty_{i,j+1}\,\Gamma$ and two mappings: $\El : \Tm_{i,j+1}\,\Gamma\,\U_{i,j} \to \Ty_{i,j}\,\Gamma$ and $\Code : \Ty_{i,j}\,\Gamma \to \Tm_{i,j+1}\,\Gamma\,\U_{i,j}$ that are inverses of each other.
+%     \begin{itemize}
+%         \item that is, in any context $\Gamma$,  $\U_{i,j}$ is a term in the $j+1$ universe
+%         \item if $A$ is a term of type $\U_{i,j}$ in context $\Gamma$, then $\mathsf{El}A$ is a type in the context $\Gamma$
+%         \item (todo what does El mean)
+%     \end{itemize}
+%     \item \emph{$\Sigma$-Types}: If we have $A : \Ty_{i,j}\,\Gamma$ and $B : \Ty_{i,j}\,(\Gamma \ext (x : A))$, then we have $\Sigma\,(x : A)\,B : \Ty_{i,j}\,\Gamma$. We also require there to be a natural isomorphism between terms of type $\Sigma\,(x : A)\,B$ and the pairs $(t : \Tm_{i,j}\,\Gamma\,A) \times \Tm_{i,j}\,\Gamma\,(B[x\mapsto t])$ \textit{($B[x\mapsto t]$ refers to replacing all free occurances of $x$ with $t$)}. This restriction is similar to the one placed on context extension, but this time on terms rather than context substitution.
+%     \item \emph{$\Pi$-Types (Functions)}: If we have $A : \Ty_{i,j}\,\Gamma$ and $B : \Ty_{i,j}\,(\Gamma \ext (x : A))$, then we have $\Pi\,(x : A)\,B : \Ty_{i,j}\,\Gamma$. The mapping associated with this family of types are the following:
+%     \begin{alignat*}{3}
+%     & \lam &&: \Tm_{i,j}\,(\Gamma \ext (x : A))\,B \to \Tm_{i,j}\,\Gamma\,(\Pi\,(x : A)\,B) \\
+%     & \app &&: \Tm_{i,j}\,\Gamma\,(\Pi\,(x : A)\,B) \to \Tm_{i,j}\,(\Gamma \ext (x : A))\,B
+%   \end{alignat*}
+%   The former representing turning a term into a function by making some subterm free variable and abstracting over that free term. The latter represent substituting the free variable in a function abstraction with a specific term.
+    
+% \end{itemize}
+
+% (natural numbers, can relate to Little Typer in presentation)
+
+% $$\begin{aligned}
+%     \mathsf{NatElim}:&\;(P:\mathsf{Ty}_{i,k}(\Gamma\ext(n:\mathsf{Nat}_{i,j})))\\
+%     \to&\;(z:\mathsf{Tm}_{i,k}\Gamma(P[n\mapsto\mathsf{zero}_{i,j}]))\\
+%     \to&\;(s:\mathsf{Tm}_{i,k}(\Gamma\ext(n:\Nat_{i,j})\ext(pn:P[n\mapsto n]))(P[n\mapsto\mathsf{suc}_{i,j}n]))\\
+%     \to&\;(t:\Tm_{i,j}\Gamma(P[n\mapsto t]))
+% \end{aligned}$$
+
+% (aka \texttt{ind-Nat} where $P$ is type (motive?), $z$ is base, $s$ is step, $t$ is target)
+
+% $beta$ rules, aka commandments of ind-Nat
+
+% $$\begin{aligned}
+%     \mathsf{NatElim}\;P\;z\;s\;\zero_{i,j}&=z\\
+%     \mathsf{NatElim}\;P\;z\;s\;(\suc_{i,j}t)&=s[n\mapsto t,pn\mapsto\NatElim\;P\;z\;s\;t]\\
+% \end{aligned}$$
+
+% Notice throughout the specification of these structures, the index $i$ remains the same. This is a reflection of the closure property as mentioned in \hyperlink{universes-and-type-formers}{earlier section}. 
+
+% \subsubsection{Lifting, Quoting and Splicing}
+% We introduce the additional structures unique to 2LTT. We are equipped with $\Lift: \Ty_{0, j}\,\Gamma \to \Ty_{1,j}\,\Gamma$ acting on the types, and a pair of invertible mapping acting on the terms: 
+% \begin{itemize}
+%     \tightlist
+%     \item $\qut{\blank} : \Tm_{0,j}\,\Gamma\,A \to \Tm_{1,j}\,\Gamma\,(\Lift A)$
+%     \item $\spl \blank: \Tm_{1,j}\,\Gamma\ \,(\Lift A) \to  \Tm_{0,j}\,\Gamma\,A$
+% \end{itemize} 
+% Notice in comparison to structures from earlier, we specify the value of index $i$, moving between 0 and 1. These are the only constructs that allows movement between stages.
+
+% One may ask why is there a invertible function for terms, but not one for types? Consider understanding 2LTT from the perspective of logic, with stage 0 being the object-level and stage 1 being the meta-level. There is usually a way of representing object or concepts of the object-level in meta-level. However, with object-level usually being simpler, there might be concept in the meta-level such that there are no equivalent in the object-level. As such, a $\Ty_{1, j} \to \Ty_{0, j}$ might not be defined when applied with some types unique to stage 1. 
+
+
+% % The category modeling of 2LTT can feel unfamiliar (As the hair loss of the current writer can attest). As such, we now turn to inference rules defined for the language, which will hopefully give us better understanding of previous definitions.
+
+
+
+
+
+
+
+
+
+
+
+% %===================================================================%
+% %                                                                   %
+% %                                                                   %
+% %                                                                   %
+%      Correspondence between judgment and category structures        %
+% %                                                                   %
+% %                                                                   %
+% %                                                                   %
+% %===================================================================%
+%
+% 
+% \subsection{Correspondence}
+% We can find correspondences between the judgments and the categorical description of 2LTT. For example, 
+% \begin{alignat*}{2}
+%   & \Gamma\vdash\hspace{6em}           && \approx \Gamma : \Con\\
+%   & \Gamma\vdash \sigma : \Delta       && \approx \sigma : \Sub\, \Gamma\, \Delta \\ 
+%   & \Gamma\vdash_{i,j} A                && \approx A: \Ty_{i, j} \,\Gamma\\
+%   & \Gamma\vdash_{i,j} t : A            && \approx t : \Tm_{i, j} \,\Gamma\, A
+% \end{alignat*}
+
+
+% Reader might be familiar with some of the these judgment. The two judgment in regarding context substitution are a consequence of choosing categories with families as the underlying model. The index next to ``$\vdash$'' indicates the stage and universe level we are making the judgment in. 
+% \begin{example}    
+% The judgment $\Gamma\vdash_{i,j} U_{i, j+10}$ would be false, since $U_{i, j+10}$ is 10 levels above where we are making the judgment. 
+% \end{example}

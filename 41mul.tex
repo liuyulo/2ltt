@@ -1,0 +1,185 @@
+Back to the definition of $\mathsf{mul}_1$:
+
+$$
+\mathsf{mul}_1:=\lambda\,a\,b.\,\mathsf{NatElim}_1\,(\lambda\,\_.\,{\Uparrow}\mathsf{Nat}_0)\,\langle \mathsf{zero}_0\rangle\,(\lambda\,\_\,n.\,\langle \mathsf{add}_0\,{\sim}b\,{\sim}n\rangle)\,a\\
+$$
+
+The ultimate goal for this section is to derive the judgment that $\mathsf{mul}_1$ has the type $\mathsf{Nat}_1\to{\Uparrow}\mathsf{Nat}_0\to{\Uparrow}\mathsf{Nat}_0$ from the empty context. Since the definition for $\mathsf{mul}_1$ uses the function $\mathsf{add}_0$, we will assume the type of $\mathsf{add}_0$. In other words, let's add the following inference rule.
+
+$$
+\inferrule*[lab=add]
+{\Gamma \vdash_{00} a:\mathsf{Nat}_0\\\Gamma \vdash_{00} b:\mathsf{Nat}_0}
+{\Gamma \vdash_{00} \mathsf{add}_0\,a\,b:\mathsf{Nat}_0}
+$$
+
+Now, we have enough inference rules to derive the type of $\mathsf{mul}_1$ from the empty context. To begin, we will derive the arguments for the function $\mathsf{mul}_1$ through context extensions.
+
+$$
+\inferrule*[Right=nat-sub]{
+    \inferrule*[Right=type-comp-sub]{
+        \inferrule*[Right=term-sub]{
+            \inferrule*[right=sub-second-proj]{
+                \inferrule*[Right=nat-formation]{ }{\emptycon\vdash_{10}\textcolor{green}{\Nat_1}}
+            }{\emptycon\ext\textcolor{green}{\Nat_1}\vdash_{10}\textcolor{green}{\q}:\Nat_1[\p]}
+            \inferrule*[Right=sub-first-proj]{
+                \inferrule*[Right=lift]{
+                    \inferrule*[Right=nat-formation]{
+                        \inferrule*[Right=cxt-extension]{
+                            \inferrule*[Right=nat-formation]{ }{\emptycon\vdash_{10}\textcolor{green}{\Nat_1}}
+                        }{\emptycon\ext\textcolor{green}{\Nat_1}\vdash}
+                    }{\emptycon\ext\textcolor{green}{\Nat_1}\vdash_{00}\Nat_0}
+                }{\emptycon\ext\textcolor{green}{\Nat_1}\vdash_{10}\Lift\Nat_0}
+            }{\emptycon\ext\textcolor{green}{\Nat_1}\ext\Lift\Nat_0\vdash\textcolor{green}{\p}:\emptycon\ext\textcolor{green}{\Nat_1}}
+        }{\emptycon\ext\textcolor{green}{\Nat_1}\ext\Lift\Nat_0\vdash_{10}\textcolor{green}{\q[\p]}:\Nat_1[\p][\p]}
+    }{\emptycon\ext\textcolor{green}{\Nat_1}\ext\Lift\Nat_0\vdash_{10}\textcolor{green}{\q[\p]}:\Nat_1[\p\circ\p] }
+}{\emptycon\ext\textcolor{green}{\Nat_1}\ext{\Lift\Nat_0}\vdash_{10}\textcolor{green}{\q[\p]}:\Nat_1 }
+$$
+
+$$
+\inferrule*[Right=sub-second-proj]{
+    \inferrule*[Right=lift]{
+        \inferrule*[Right=nat-formation]{
+            \inferrule*[Right=cxt-extension]{
+                \inferrule*[Right=nat-formation]{ }{\emptycon\vdash_{10}{\Nat_1}}
+            }{\emptycon\ext{\Nat_1}\vdash}
+        }{\emptycon\ext{\Nat_1}\vdash_{00}\Nat_0}
+    }{\emptycon\ext{\Nat_1}\vdash_{10}\textcolor{blue}{\Lift\Nat_0}}
+}{\emptycon\ext{\Nat_1}\ext\textcolor{blue}{\Lift\Nat_0}\vdash\textcolor{blue}{\q}:\Lift\Nat_0}
+$$
+
+From the two derivations above, we obtain the terms $\textcolor{green}{\q[\p]:\Nat_1}$ and the term $\textcolor{blue}{\q:\Lift\Nat_0}$ under the context $\emptycon\ext\textcolor{green}{\Nat_1}\ext\textcolor{blue}{\Lift\Nat_0}$. These will become the arguments to our function $\mathsf{mul}_1$ in the form of De Bruijn indices, with first argument, $\textcolor{green}{\q[\p]:\Nat_1}$, being the target of our natural elimination. Notice our derivation also implies that $\emptycon\ext\Nat_1\ext\Lift\Nat_0$ is a context, thus we will denote this context as $\Gamma$ for the rest of the section for brevity.
+
+As per the definition of $\mathsf{mul}_1$, it consists of terms to be passed to $\NatElim$ as arguments. We start with the derivation of $(\lambda\,\_.\Lift\Nat_0)$, which we will refer to as the motive.
+
+$$
+\inferrule*[Right=lift]{
+    \inferrule*[Right=nat-formation]{
+        \inferrule*[Right=cxt-extension]{
+            \inferrule*[Right=nat-formation]{
+                \Gamma\vdash
+            }{\Gamma\vdash_{10}\Nat_1}
+        }{\Gamma\ext\Nat_1\vdash}
+    }{\Gamma\ext\Nat_1\vdash_{00}\Nat_0}
+}{\Gamma\ext\Nat_1\vdash_{10}\Lift\Nat_0}
+$$
+
+Since we have derived $\Lift\Nat_0$ as our motive under the context $\Gamma\ext\Nat_1$, both the base and step should produce a $\Lift\Nat_0$ with some substitutions according to the inference rule \textsc{nat-elim}. Thus, we continue our derivation with the base, $\langle \mathsf{zero}_0\rangle$. We will reuse previously derived judgments as assumptions and apply equality judgments directly to our expressions.
+
+$$
+\inferrule*[Right=zero-sub]{
+    \inferrule*[Right=quote-sub]{
+        \inferrule*[Right=term-sub]{
+            \inferrule*[right=sub-extension]{
+                \inferrule*[right=identity-sub]{
+                    \Gamma\vdash
+                }{\Gamma\vdash\id:\Gamma}\\
+                \inferrule*[Right=type-id-sub]{
+                    \inferrule*[Right=zero]{
+                        \Gamma\vdash
+                    }{\Gamma\vdash_{10}:\mathsf{zero}_1:\Nat_1}
+                }{\Gamma\vdash_{10}\mathsf{zero}_1:\Nat_1[\id]}
+            }{\Gamma\vdash(\id,\mathsf{zero}_1):\Gamma\ext\Nat_1}
+            \,
+            \inferrule*[Right=lift]{
+                \inferrule*[Right=zero]{
+                    \Gamma\ext\Nat_1\vdash
+                }{\Gamma\ext\Nat_1\vdash_{00}\mathsf{zero}_0:\Nat_0}
+            }{\Gamma\ext\Nat_1\vdash_{10}\langle \mathsf{zero}_0\rangle:\Lift\Nat_0}
+        }{\Gamma\vdash_{10}\langle\mathsf{zero}_0\rangle[\id,\mathsf{zero}_1]:(\Lift\Nat_0)[\id,\mathsf{zero}_1]}
+    }{\Gamma\vdash_{10}\langle \mathsf{zero}_0[\id,\mathsf{zero}_1]\rangle:(\Lift\Nat_0)[\id,\mathsf{zero}_1]}
+}{\Gamma\vdash_{10}:\langle \mathsf{zero}_0\rangle:(\Lift\Nat_0)[\id,\mathsf{zero}_1]}
+$$
+
+When our target of elimination is $\mathsf{zero}_1:\Nat_1$, the multiplication function should return $\langle \mathsf{zero}_0\rangle$. Otherwise, the target is be nested with $\mathsf{suc}_1$. Thus, to perform multiplication with our argument $\textcolor{blue}{\q:\Lift\Nat_0}$, we add $\textcolor{blue}{\q}$ on each step. 
+
+Since the output of the step function is a $(\Lift\Nat_0)[\p\circ\p,\suc(\q[\p])]$ as per the inference rule \textsc{nat-elim}, we first simplify this type by deriving $\Nat_0[\p\circ\p,\suc(\q[\p])]=\Nat_0$. Next, as the step function uses $\mathsf{add}_0$ according to the definition of $\mathsf{mul}_1$, we derive the first argument of $\mathsf{add}_0$ as $\textcolor{blue}{\q:\Lift\Nat_0}$ in our first derivation. However, we need to shift its De Bruijn index as the context is extended for the step function. Lastly, we apply the inference rule \textsc{add} as described in the beginning of the section.
+
+
+$$
+\inferrule*[Right=nat-sub]{
+    \inferrule*[Right=suc-sub]{
+        \inferrule*[Right=sub-extension-\circ]{
+            \inferrule*[Right=sub-composition]{
+                \inferrule*[right=sub-extension]{
+                    \inferrule*[right=nat-sub]{
+                        \inferrule*[Right=suc]{
+                            \inferrule*[Right=nat-sub]{
+                                \inferrule*[Right=sub-second-proj]{
+                                    \Gamma\vdash_{10}\Nat_1
+                                }{\Gamma\ext\Nat_1\vdash_{10}\q:\Nat[\p]}
+                            }{\Gamma\ext\Nat_1\vdash_{10}\q:\Nat_1}
+                        }{\Gamma\ext\Nat_1\vdash_{10}\suc_1\,\q:\Nat_1}
+                    }{\Gamma\ext\Nat_1\vdash_{10}\suc_1\,\q:\Nat_1[\p]}\,
+                    \inferrule*[Right=sub-first-proj]{
+                        \Gamma\vdash_{10}\Nat_1
+                    }{\Gamma\ext\Nat_1\vdash\p:\Gamma}
+                }{\Gamma\ext\Nat_1\vdash(\p,\suc\,\q):\Gamma\ext\Nat_1}\,
+                \inferrule*[Right=sub-first-proj]{
+                    \Gamma\ext\Nat_1\vdash_{10}\Lift\Nat_0
+                }{\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash\p:\Gamma\ext\Nat}
+            }{\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash(\p,\suc\,\q)\circ\p:\Gamma\ext\Nat_1}
+        }{\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash(\p\circ\p,(\suc\,\q)[\p]):\Gamma\ext\Nat_1}
+    }{\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash(\p\circ\p,\suc(\q[\p])):\Gamma\vdash\Nat_1}
+}{\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash_{00}\Nat_0[\p\circ\p,\suc(\q[\p])]=\Nat_0\quad (1)}
+$$
+
+$$
+\inferrule*[right=splice]{
+    \inferrule*[Right=nat-sub]{
+        \inferrule*[Right=lift-sub]{
+            \inferrule*[Right=term-sub]{
+                {\Gamma\vdash_{10}\textcolor{blue}{\q}:\Lift\Nat_0}
+                \inferrule*[Right=sub-composition]{
+                    \inferrule*[right=sub-first-proj]{
+                        \Gamma\ext\Nat_1\vdash_{10}\Lift\Nat_0
+                    }{\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash\p:\Gamma\ext\Nat_1}
+                    \inferrule*[Right=sub-first-proj]{
+                        \Gamma\vdash\Nat_1
+                    }{\Gamma\ext\Nat_1\vdash\p:\Gamma}
+                }{\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash\p\circ\p:\Gamma}
+            }{\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash_{10}\textcolor{blue}{\q[\p\circ\p]}:(\Lift\Nat_0)[\p\circ\p]}
+        }{\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash_{10}\textcolor{blue}{\q[\p\circ\p]}:\Lift(\Nat_0[\p\circ\p])}
+    }{\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash_{10}\textcolor{blue}{\q[\p\circ\p]}:\Lift\Nat_0}
+}{\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash_{00}\spl(\textcolor{blue}{\q[\p\circ\p]}):\Nat_0}
+$$
+
+$$
+\inferrule*[Right=lift-sub]{
+\inferrule*[Right=quote]{
+\inferrule*[Right=(1)]{
+\inferrule*[Right=add]{
+{\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash_{00}\spl(\textcolor{blue}{\q[\p\circ\p]}):\Nat_0}
+\inferrule*[Right=splice]{
+\inferrule*[Right=nat-sub]{
+\inferrule*[Right=lift-sub]{
+\inferrule*[Right=sub-second-proj]{
+\Gamma\ext\Nat_1\vdash_{10}\Lift\Nat_0
+}{\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash_{10}\q:(\Lift\Nat_0)[\p]}
+}{\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash_{10}\q:\Lift(\Nat_0[\p])}
+}{\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash_{10}\q:\Lift\Nat_0}
+}{\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash_{00}\spl\q:\Nat_0}
+}{\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash_{00}\mathsf{add}_0\,\spl(\textcolor{blue}{\q[\p\circ\p]})\,\spl\q:\Nat_0}
+}{\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash_{00}\mathsf{add}_0\,\spl(\textcolor{blue}{\q[\p\circ\p]})\,\spl\q:\Nat_0[\p\circ\p,\suc(\q[\p])]}
+}{\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash_{10}\qut{\mathsf{add}_0\,\spl(\textcolor{blue}{\q[\p\circ\p]})\,\spl\q}:\Lift(\Nat_0[\p\circ\p,\suc(\q[\p])])}
+}{\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash_{10}\qut{\mathsf{add}_0\,\spl(\textcolor{blue}{\q[\p\circ\p]})\,\spl\q}:(\Lift\Nat_0)[\p\circ\p,\suc(\q[\p])]}
+$$
+
+Now we have derived all the arguments for $\NatElim$, we follow the definition of $\mathsf{mul}_1$ and derive the following:
+
+$$
+\inferrule*[]{
+\inferrule*[Right=nat-sub]{
+\inferrule*[Right=lift-sub]{
+\inferrule*[Right=nat-elim]{
+\Gamma\ext\Nat_1\vdash_{10}\Lift\Nat_0\\\\
+\Gamma\vdash_{10}:\langle \mathsf{zero}_0\rangle:(\Lift\Nat_0)[\id,\mathsf{zero}_1]\\\\
+\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash_{10}\qut{\mathsf{add}_0\,\spl(\textcolor{blue}{\q[\p\circ\p]})\,\spl\q}:(\Lift\Nat_0)[\p\circ\p,\suc(\q[\p])]\\\\
+\Gamma\vdash_{10}\textcolor{green}{\q[\p]}:\Nat_1
+}{\Gamma\vdash_{10}\NatElim\,\Lift\Nat_0\,\langle \mathsf{zero}_0\rangle\,\qut{\mathsf{add}_0\,\spl(\textcolor{blue}{\q[\p\circ\p]})\,\spl\q}\,\textcolor{green}{\q[\p]}:(\Lift\Nat_0)[\id,\textcolor{green}{\q[\p]}]}
+}{\Gamma\vdash_{10}\NatElim\,\Lift\Nat_0\,\langle \mathsf{zero}_0\rangle\,\qut{\mathsf{add}_0\,\spl(\textcolor{blue}{\q[\p\circ\p]})\,\spl\q}\,\textcolor{green}{\q[\p]}:\Lift(\Nat_0[\id,\textcolor{green}{\q[\p]}])}
+}{\Gamma\vdash_{10}\NatElim\,\Lift\Nat_0\,\langle \mathsf{zero}_0\rangle\,\qut{\mathsf{add}_0\,\spl(\textcolor{blue}{\q[\p\circ\p]})\,\spl\q}\,\textcolor{green}{\q[\p]}:\Lift\Nat_0}
+}{\emptycon\ext\textcolor{green}{\Nat_1}\ext\textcolor{blue}{\Lift\Nat_0}\vdash_{10}\NatElim\,\Lift\Nat_0\,\langle \mathsf{zero}_0\rangle\,\qut{\mathsf{add}_0\,\spl(\textcolor{blue}{\q[\p\circ\p]})\,\spl\q}\,\textcolor{green}{\q[\p]}:\Lift\Nat_0}
+$$
+
+In the last step of the derivation above, we apply the assumption that the context $\Gamma$ denotes $\emptycon\ext\textcolor{green}{\Nat_1}\ext\textcolor{blue}{\Lift\Nat_0}$ since the beginning of the section. The end result of our derivation shows that, for an $\textcolor{green}{a:\Nat_1}$ and $\textcolor{blue}{b:\Lift\Nat_0}$, the expression $\NatElim\,\Lift\Nat_0\,\qut{\mathsf{zero}_0}\,\qut{\mathsf{add}_0\,\spl\textcolor{blue}{b}\,\spl\q)}\,\textcolor{green}{a}$ has the type $\Lift\Nat_0$, where $\q$ is an argument in the step function. In other words, the step function is $\lambda\,\_.\,\lambda\,n.\qut{\mathsf{add}_0\,\spl\textcolor{blue}{b}\,\spl n}$. Ultimately, our derived expression matches the definition of $\mathsf{mul}_1$, thus $\mathsf{mul}_1$ has the type $\Nat_1\to\Lift\Nat_0\to\Lift\Nat_0$ as wanted. Therefore, we can now use the derivation to stage the metaprogram $\mathsf{double}_0:=\lambda\,x.\,\spl(\mathsf{mul}_1\,(\suc_1\,(\suc_1\,\mathsf{zero}_1))\,\qut x)$ through the equality judgments of $\NatElim$, which will result the same output as described in the introduction.
+

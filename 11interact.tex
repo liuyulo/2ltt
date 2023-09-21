@@ -1,0 +1,15 @@
+While 2LTT provides safety about the output code staged from a metaprogram, the only way to interact between stages is through these three staging operations: lifting, quoting, and splicing. 
+
+\begin{itemize}
+    \item If we have a stage 0 type $A_0$, we can \emph{lift} $A_0$, denoted as $\Lift A_0$. The type $\Lift A_0$ describes the type of metaprograms that compute a stage $0$ expression of type $A_0$. 
+    \item If we have a stage 0 term $t$ of type $A_0$, we can \emph{quote} $t$, denoted as $\qut{t}$. The term $\langle t\rangle$ describes a metaprogram that immediately yields $t$.
+    \item If we have a stage 1 term $s$ of type $\Lift A_0$, we can \emph{splice} $s$, denoted as $\spl s$. The term $\spl s$ describes a term that is to be executed during staging with the resulting expression substituted back to the output code. 
+
+
+    % \item If we lift a stage $0$ type $A_0$, denoted as ${\Uparrow}A_0$, the lifted type becomes a stage $1$ type. 
+    % \item We can also lift a stage $0$ term $x_0:A_0$ to stage $1$ through quoting, denoted as $\langle x_0\rangle:{\Uparrow}A_0$. The notation $\langle t\rangle$ describes a metaprogram that immediately yields $t$.
+    % \item The splice operation brings a quoted term back to stage $0$. In other words, if $t_0$ is a ${\Uparrow}A_0$, then the splice of the term, denoted as ${\sim}t_0:A_0$, means that $t_0$   
+\end{itemize}
+
+The combinations of these staging operations allows us to lift stage $0$ terms and types to stage $1$, and bring lifted terms back to stage $0$.
+

@@ -1,0 +1,24 @@
+Bringing back the definition of $\mathsf{double}_0$:
+
+$$
+\begin{aligned}
+    \mathsf{double}_0&:\mathsf{Nat}_0\to\mathsf{Nat}_0\\
+    \mathsf{double}_0&:=\lambda\,x.\,{\sim}(\mathsf{mul}_1\,(\suc_1\,(\suc_1\,\mathsf{zero}_1))\,\langle x\rangle)\\
+\end{aligned}
+$$
+
+Based on the definition above, we substitute $\textcolor{green}{\q[\p]}$ with the term $\suc_1\,(\suc_1\,\mathsf{zero}_1):\Nat_1$ and $\textcolor{blue}{\q[\p\circ\p]}$ with $\qut{x}:\Lift\Nat_0$. Thus, applying the inference rules, we stage the program as follows:
+
+\begin{align*}
+    &\lambda\,x.\,{\sim}(\mathsf{mul}_1\,(\suc_1\,(\suc_1\,\mathsf{zero}_1))\,\langle x\rangle)\\
+    =\,&\lambda\,x.\,\spl(\NatElim\,\Lift\Nat_0\,\qut{\mathsf{zero}_0}\,\qut{\mathsf{add}_0\,\spl\qut x\,\spl\q}\,(\suc_1\,(\suc_1\,\mathsf{zero}_1)))\tag{definition of $\mathsf{mul}_1$}\\
+    =\,&\lambda\,x.\,\spl(\NatElim\,\Lift\Nat_0\,\qut{\mathsf{zero}_0}\,\qut{\mathsf{add}_0\,x\,\spl\q}\,(\suc_1\,(\suc_1\,\mathsf{zero}_1)))\tag{\textsc{splice-quote}}\\
+    =\,&\lambda\,x.\,\spl\qut{\mathsf{add}_0\,x\,\spl(\NatElim\,\Lift\Nat_0\,\qut{\mathsf{zero}_0}\,\qut{\mathsf{add}_0\,x\,\spl\q}\,(\suc_1\,\mathsf{zero}_1))}\tag{\textsc{suc-$\beta$}}\\
+    =\,&\lambda\,x.\,\mathsf{add}_0\,x\,\spl(\NatElim\,\Lift\Nat_0\,\qut{\mathsf{zero}_0}\,\qut{\mathsf{add}_0\,x\,\spl\q}\,(\suc_1\,\mathsf{zero}_1))\tag{\textsc{splice-quote}}\\
+    =\,&\lambda\,x.\,\mathsf{add}_0\,x\,\spl\qut{\mathsf{add}_0\,x\,\spl(\NatElim\,\Lift\Nat_0\,\qut{\mathsf{zero}_0}\,\qut{\mathsf{add}_0\,x\,\spl\q}\,\mathsf{zero}_1})\tag{\textsc{suc-$\beta$}}\\
+    =\,&\lambda\,x.\,\mathsf{add}_0\,x\,(\mathsf{add}_0\,x\,\spl(\NatElim\,\Lift\Nat_0\,\qut{\mathsf{zero}_0}\,\qut{\mathsf{add}_0\,x\,\spl\q}\,\mathsf{zero}_1))\tag{\textsc{splice-quote}}\\
+    =\,&\lambda\,x.\,\mathsf{add}_0\,x\,(\mathsf{add}_0\,x\,\spl\qut{\mathsf{zero}_0})\tag{\textsc{zero-$\beta$}}\\
+    =\,&\lambda\,x.\,\mathsf{add}_0\,x\,(\mathsf{add}_0\,x\,\mathsf{zero}_0)\tag{\textsc{splice-quote}}\\
+\end{align*}
+
+

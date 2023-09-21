@@ -1,0 +1,98 @@
+\documentclass{article}
+\usepackage{indentfirst} % indent first paragraph
+\usepackage[style=alphabetic,sorting=ynt]{biblatex}
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\usepackage{xcolor}
+\usepackage[colorlinks]{hyperref}
+\usepackage[shortlabels]{enumitem}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{mathpartir}
+\usepackage{scalerel}
+
+\RequirePackage[T1]{fontenc}
+\RequirePackage[tt=false, type1=true]{libertine}
+\RequirePackage[varqu]{zi4}
+\RequirePackage[libertine]{newtxmath}
+
+\addbibresource{refs.bib}
+\addbibresource{short.bib}
+\input{preamble}
+
+\title{Introduction to Staged Compilation and Two-Level Type Theory}
+\date{}
+\author{Yulong Liu\and Youzhang Sun}
+\begin{document}
+
+\maketitle
+
+\section{Introduction to Staged Compilation}
+\input{10staged}
+
+\subsection{Interaction between Stages}
+\input{11interact}
+
+\subsection{Example of A Staged Program}\label{example-staged}
+\input{11example}
+
+\subsection{Soundness of Staging}
+\input{12correct}
+
+\section{Introduction to Two-Level Type Theory}
+\input{20two}
+
+\subsection{Universes and Type Formers}
+\input{21universe}
+
+
+\section{Inference Rules of 2LTT}
+
+In this section, we analyze the inference rules of 2LTT. As 2LTT is an extension of Martin-Löf type theory, many concepts involve to dependent functions. Therefore, to denote the type of a dependent function, we use the notation $(x:A)\to B$ where the term $x$ may occur in the type $B$. We also use the alternative notation $(x:A)\to B\,x$, which clarifies that $B$ is a type dependent on $x$.
+
+ 
+\subsection{Judgments}
+\input{Inference-Rules/Introduction-to-Judgments}
+
+
+
+\subsection{Familiar Inference Rules in the Context of 2LTT}
+\input{Inference-Rules/Familiar-Inference-rules}
+
+
+
+\subsection{Lifting, Quoting, and Splicing}
+\input{Inference-Rules/Lifting-Quoting-Splicing}
+
+
+
+\section{Applying Judgments and Inference Rules}
+In this section, we provide examples that employ the inference rules as presented in the previous section. First, we apply the inference rules to derive the type of $\mathsf{mul}_1$ under the assumption that $\mathsf{add}_0$ has type $\mathsf{Nat}_0\to\mathsf{Nat}_0\to\mathsf{Nat}_0$. The type of $\mathsf{add}_0$ is derived in the same manner since $\mathsf{mul}_1$ and $\mathsf{add}_0$ are both defined with $\mathsf{NatElim}$. Second, we use the inference rules for lifting to prove the isomorphism between lifted function types and function types where the domain and codomain are lifted. This isomorphism property is useful as it can optimise the implementation of the 2LTT model.
+
+
+\subsection{Type Derivation for $\mathsf{mul}_1$}
+
+\input{41mul}
+
+\subsection{Staging $\mathsf{double_0}$ Formally}
+
+\input{42double}
+
+\section{Discussion}
+We have completed our main objective of applying and type-checking our metaprogram $\mathsf{double}_0$. Now we will discuss some properties of 2LTT that can serve as direction for further exploration.
+
+\subsection{Isomorphism Property of Lifting and Quoting}
+\input{51lift-and-pi}
+
+
+
+
+\section{Conclusion}
+\input{99concl}
+% Should attempt to explore the challenge of allowing type formers to form types using types from different stages. It is my suspicion that the challenge would be considering which universe would the produced type be in
+
+
+
+
+\printbibliography
+
+\end{document}
+

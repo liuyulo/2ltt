@@ -1,0 +1,258 @@
+Here we look at some inference rules that are common in many type theories, but now they involve stage and universe level. 
+
+\subsubsection{Context}
+    We always have access to the empty context, as represented by the axiom:
+    
+    \begin{mathparpagebreakable}
+        \inferrule*[lab=empty-cxt]
+             {\\}
+             {\emptycon \vdash}
+    \end{mathparpagebreakable}
+
+    If a type $A$ can be derived from a context $\Gamma$, we can extend $\Gamma$ with the type $A$
+
+    \begin{mathparpagebreakable}
+        \inferrule*[lab=cxt-extension]
+             {\Gamma \vdash \\ \Gamma \vdash_{i,j} A}
+             {\Gamma \ext A \vdash}
+    \end{mathparpagebreakable}
+
+    An interesting observation is that types from all stages and universe levels are treated equally with extending context. A type in stage 0 extends the context in the same way as a type in stage 1.
+
+\subsubsection{Substitutions}
+As mentioned in in the previous section on judgments, we will only employ the weakening substitution for De Bruijn indices. Nonetheless, it is important to mention that substitutions have an identity before covering weakening substitutions:
+
+\begin{mathparpagebreakable}
+    \inferrule*[lab=identity-sub]
+        {\Gamma \vdash}
+        {\Gamma \vdash\id:\Gamma}
+
+    \inferrule*[lab=type-id-sub]
+        {\Gamma \vdash_{i,j} A}
+        {\Gamma \vdash_{i,j} A[\id]=A}
+
+    \inferrule*[lab=term-id-sub]
+        {\Gamma \vdash_{i,j} t:A}
+        {\Gamma \vdash_{i,j} t[\id]=t:A}
+\end{mathparpagebreakable}
+
+Since we only extend a type to the context through \textsc{cxt-extension} rather than a type-term pair, we need to refer to the terms in our context. To do so, we can derive the \emph{zero variable} $\q$ and the \emph{weakening substitution} $\p$ when extending a context with an arbitrary type:
+
+\begin{mathparpagebreakable}
+    \inferrule*[lab=sub-first-proj]
+        {\Gamma \vdash_{i,j}A}
+        {\Gamma\ext A\vdash\p:\Gamma}
+
+    \inferrule*[lab=sub-second-proj]
+        {\Gamma \vdash_{i,j} A}
+        {\Gamma\ext A\vdash\q: A[\p]}
+\end{mathparpagebreakable}
+
+From the rule \textsc{sub-second-proj}, the term $\q$ refers to a term in the context $\Gamma\ext A$, in particular, with type $A$ that we have just extended. In general, the term $\q$ always points to the most recently extended type. Similarly, the weakening substitution $\p$ that is applied to the type $A[\p]$ under the context $\Gamma\ext A$ means that $A[\p]$ refers to the type inside the context (namely, the most recently extended one) rather than a newly formed type. Therefore, if we continue to extend more types to the context, we need to shift the De Bruijn index $\q$ with these substitution rules:
+
+\begin{mathparpagebreakable}
+    \inferrule*[lab=type-sub]
+        {\Delta\vdash_{i,j}A\\\Gamma\vdash\sigma:\Delta}
+        {\Gamma\vdash_{i,j}A[\sigma]}
+
+    \inferrule*[lab=term-sub]
+        {\Delta\vdash_{i,j}t:A\\\Gamma\vdash\sigma:\Delta}
+        {\Gamma\vdash_{i,j}t[\sigma]:A[\sigma]}
+\end{mathparpagebreakable}
+
+For example, suppose we can form the type $A$ under context $\Gamma$ and the type $B$ under $\Gamma\ext A$, then we can derive the following De Bruijn indices, which we will use colors to match with their type in the context:
+
+\begin{mathparpagebreakable}
+\inferrule*[right=term-sub]{
+\inferrule*[right=sub-second-proj]{
+    \Gamma\vdash\textcolor{green}{A}
+}{\Gamma\ext\textcolor{green}{A}\vdash\textcolor{green}{\q}:A[\p]}
+\inferrule*[Right=sub-first-proj]{
+    \Gamma\ext\textcolor{green}{A}\vdash B
+}{\Gamma\ext\textcolor{green}{A}\ext B\vdash\p:\Gamma\ext\textcolor{green}{A}}
+}{\Gamma\ext \textcolor{green}{A}\ext B\vdash \textcolor{green}{\q[\p]}:A[\p][\p]}
+
+\inferrule*[right=sub-second-proj]{
+\Gamma\ext A\vdash\textcolor{blue}{B}
+}{\Gamma\ext A\ext\textcolor{blue}{B}\vdash\textcolor{blue}{\q}:B[\p]}
+\end{mathparpagebreakable}
+
+Next, as substitutions are mappings from one context to another, they can be composed. In addition, applying the composition of two substitutions is judgmentally equal to applying the first, then applying the second. Despite the fact that there are other properties on substitution composition such as associativity and composing substitutions on terms, they won't be used for the purpose of this paper. Nonetheless, we have these inference rules:
+
+\begin{mathparpagebreakable}
+    \inferrule*[lab=sub-composition]
+        {\Delta\vdash\sigma:\Theta\\\Gamma\vdash\delta:\Delta}
+        {\Gamma\vdash\sigma\circ\delta:\Theta}
+
+    \inferrule*[lab=type-comp-sub]
+        {\Theta\vdash_{i,j}A\\\Delta\vdash\delta:\Theta\\\Gamma\vdash\sigma:\Delta}
+        {\Gamma\vdash_{i,j}A[\sigma\circ\delta]=A[\sigma][\delta]}
+\end{mathparpagebreakable}
+
+
+Lastly, substitutions can be extended with a term, and applying an extended substitution to a term is analogous to function application. For instance, if a funtion $f$ is defined as $\lambda\,x.\mathsf{body}$ for some term $\mathsf{body}$ where $x$ might appear in, then the function application $f\,a$ results the same expression as the substitution $\mathsf{body}[\id,a]$ where $(\id,a)$ is the identity substitution extended with the term $a$. Extending a substitution is rarely used in this paper other than for the elimination of naturals, but for completeness, we have these inference rules:
+
+
+\begin{mathparpagebreakable}
+    \inferrule*[lab=sub-extension]
+        {\Gamma\vdash\sigma:\Delta\\\Gamma\vdash t:A[\sigma]}
+        {\Gamma\vdash(\sigma,t):\Delta\ext A}
+
+    \inferrule*[lab=sub-extension-\circ]
+        {\Delta\vdash\sigma:\Theta\\\Delta\vdash_{i,j}t:A[\sigma]\\\Gamma\vdash\delta:\Delta}
+        {\Gamma\vdash(\sigma,t)\circ\delta=(\sigma\circ\delta,t[\delta]):\Theta\ext A}
+\end{mathparpagebreakable}
+
+As we revisit the $\mathsf{double}_0$ example for type-checking and staging, we will intensively apply these inference rules on substitution along with the three staging operations.
+
+%==============================================================================
+
+
+\subsubsection{Universes}
+    Both stage 0 and stage 1 supports hierarchy of universes. 2LTT chooses the Russell-style universes as the framework for implementing hierarchy.
+    %and Tarski-style universes are two methods of implementing hierarchy of universes. 
+    % \begin{itemize}
+    %     \item \emph{Russell-style Universes}: 
+    %     \item \emph{Tarski-style Universes}: Tarski-style universes are supplied with the addition of two operators ``$\El, \Code$''. In Tarski-style universes, a term $t:\U$ can be transformed into a type with $\El\,t$, and a type $A$ can be transformed into a term of $\U$ with $\Code A : \U$.
+    % \end{itemize} 
+
+    
+    \begin{definition}[Russell-style Universe]
+        \emph{Russell-style universes} have types as terms of universes. For example, it has $\Gamma \vdash A : \U$ where $A$ is a type. % (The Little Typer uses this approach). 
+    \end{definition}
+    
+    The rule \textsc{universe} describes the hierarchy:
+    $$\inferrule*[lab=universe]
+                 {\\}
+                 {\Gamma \vdash_{i,j+1} \U_j}$$
+
+    Notice the index shift by 1 between the type we are judging and the universe we are making judgment in. The rule states that regardless of the stage, a universe is a term of the next largest universe. This is a reflection of the Russell-style universes.
+
+    % 2LTT also includes a way to transform a type from a lowerlevel universe into a term of the universe type at the next level of universe, or vise versa.  
+    % 2LTT also includes some characteristics of Tarski-style universe, these are most likely a consequence of the mathematical foundation of 2LTT, which uses category theory, where $\El$ and $\Code$ are natural transformation. As the paper ``Two-Level Type Theory and Application'' stated, these also serves to model Russell-style universes \cite{2ltt}.
+    % \begin{mathparpagebreakable}
+    %     \inferrule*[lab=universe-decoding]
+    %          {\Gamma \vdash_{i,j+1} t : \U_j}
+    %          {\Gamma \vdash_{i,j} \El\,t}
+    %              
+    %      \inferrule*[lab=universe-encoding]
+    %          {\Gamma \vdash_{i,j} A}
+    %          {\Gamma \vdash_{i,j+1} \Code\,A : \U_j}
+    % \end{mathparpagebreakable}
+
+%==============================================================================
+
+% \subsubsection{$\Pi$-Types}
+%     Formation of $\Pi$-type should feel familiar
+%     \begin{mathparpagebreakable}
+%         \inferrule*[lab=$\Pi$-formation]
+%              {\Gamma \vdash_{i,j} A \\ \Gamma \ext A \vdash_{i,j} B}
+%              {\Gamma \vdash_{i,j} \Pi\,A\,B}
+%     \end{mathparpagebreakable}
+
+%     The rule \textsc{$\Pi$-formation} states: Assume we have context $\Gamma$, type $A$ is derivable from $\Gamma$, and extending $\Gamma$ with $A$ would furthermore allow us to derive type $B$, then we can derive $\Pi\,A\,B$ from $\Gamma$.
+
+%     \begin{example}[Inferring $\Pi\,\Nat\,\Nat$ from the empty context] We demonstrate how to derive the type $(\Pi\,\Nat\,\Nat)$ (in stage 0 universe level 0) from the empty context $\emptycon$:
+%         \begin{mathparpagebreakable}
+%             \inferrule*[right=$\Pi$-formation]
+%             {
+%                 \inferrule*[left=Nat-formation]
+%                 { }
+%                 {\emptycon \vdash_{0,0} \Nat} \\ 
+%                 \inferrule*[right=Nat-formation]
+%                 {
+%                     \inferrule*[right=cxt-extension]
+%                     {   
+%                     \inferrule*[right=nat-formation]
+%                         { }
+%                         {\emptycon \vdash_{0, 0} \Nat}
+%                     }
+%                     {\emptycon \ext \Nat \vdash}
+%                 }
+%                 {\emptycon \ext \Nat \vdash_{0,0} \Nat}
+%             }
+%             {\emptycon \vdash_{0,0} \Pi\,\Nat\,\Nat}
+%         \end{mathparpagebreakable}
+%     \end{example}
+
+    
+%     This might come as a surprise, but the core 2LTT language syntax does not include the ``$\lambda$'' symbol. This means the notation in our examples are syntactic sugar for the core 2LTT language. 2LTT instead have a constructor $\lam$ that construct a term of $\Pi$-type:
+%     \begin{mathparpagebreakable}
+%         \inferrule*[lab=lam]
+%              {\Gamma \ext A \vdash_{i,j} t : B}
+%              {\Gamma \vdash_{i,j} \lam\,t : \Pi\,A\,B}
+%     \end{mathparpagebreakable}
+
+%     One should imagine the term $\lam\, t$ as an abstraction of $t$, where some subterm of $t$ of type $A$ are abstracted away to an argument. 
+
+%     $\Pi$ still represents dependent type. However, because the conventional $\beta$-reduction and substitution is replaced by context substitution, it takes a different method to understand. Unfortunately we are not able to provide a more intuitive understanding of such procedure, it is an area that we would like to work on in the future.
+
+
+
+
+%==============================================================================
+
+
+\subsubsection{Natural Numbers ($\Nat$)}
+Within the context of staged compilation 2LTT, we assume all universes across both stages have access to $\Nat$. $\Nat$ is implemented through Peano Arithmetic, meaning we have term $\zero$ and the term former $\suc$ at our disposal.
+
+\begin{mathparpagebreakable}
+    \inferrule*[lab=nat-formation]
+         {\\}
+         {\Gamma \vdash_{i,j} \Nat}
+
+    \inferrule*[lab=zero]
+         {\\}
+         {\Gamma \vdash_{i,j} \zero : \Nat}
+
+    \inferrule*[lab=suc]
+         {\Gamma \vdash_{i,j} t : \Nat}
+         {\Gamma \vdash_{i,j} \suc\,t : \Nat}
+\end{mathparpagebreakable}
+
+We emphasis that although $\Nat$ is a type in any stage and universe, two $\Nat$s are not the same when they are from different stage or universe by our judgments. Type and term equality require the presupposition of the two types coming from the same stage and universe level. We use the notation $\Nat_0$ and $\Nat_1$ to extinguish $\Nat$ from different stages.
+
+We also have eliminator for $\Nat$ in the form of $\msf{NatElim}$. This eliminator also comes with $\beta$ reductions as inference rules so we can apply substitutions on a given target.
+
+$$
+\inferrule*[lab=nat-elim]{
+    \Gamma \ext \Nat \vdash_{i,k} P \\\\
+    \Gamma \vdash_{i,k} z : P[\id,\,\zero] \\\\
+    \Gamma \ext \Nat \ext P \vdash_{i,k} s : P[ \p \circ \p,\,\suc\,( \q [ \p ])] \\\\
+    \Gamma \vdash_{i,j} t : \Nat}
+ {\Gamma \vdash_{i,k} \msf{NatElim}\,P\,z\,s\,t : P[\id,\,t]}
+$$
+
+\begin{mathparpagebreakable}
+    \inferrule*[lab=zero-$\beta$]
+         {\\}
+         {\Gamma \vdash_{i,j} \msf{NatElim}\,P\,z\,s\,\zero = z : P[\id,\,\zero]}
+
+    \inferrule*[lab=suc-$\beta$]
+         {\\}
+         {\Gamma \vdash_{i,j} \msf{NatElim}\,P\,z\,s\,(\suc\,t) = s[\id,\,t,\,\msf{NatElim}\,P\,z\,s\,t]
+           : P[\id,\,\suc\,t]}
+\end{mathparpagebreakable}
+
+While the premises of \textsc{nat-elim} involve some menacing substitutions on the type $P$, the substitutions on the type $\Nat$ and its term formers are rather simple. Again, we describe them as inference rules:
+
+\begin{mathparpagebreakable}
+  \inferrule*[lab=nat-sub]
+             {\Gamma \vdash \sigma : \Delta}
+             {\Gamma \vdash_{i,j} \Nat[\sigma] = \Nat}
+  
+  \inferrule*[lab=zero-sub]
+             {\Gamma \vdash \sigma : \Delta}
+             {\Gamma \vdash_{i,j} \zero[\sigma] = \zero : \Nat}
+
+  \inferrule*[lab=suc-sub]
+             {\Gamma \vdash \sigma : \Delta \\ \Delta \vdash_{i,j} t : \Nat}
+             {\Gamma \vdash_{i,j} (\suc\,t)[\sigma] = \suc\,(t[\sigma]) : \Nat}
+\end{mathparpagebreakable}
+
+
+\input{Inference-Rules/Natural-Numbers}
+
+%==============================================================================
+
+

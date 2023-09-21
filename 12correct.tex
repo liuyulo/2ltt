@@ -1,0 +1,14 @@
+% While we introduced explicit notations for staging a metaprogram, it is paramount to justify the soundness of these notations and the staging algorithm itself as well. The type system of 2LTT, by restricting the interaction between stage $1$ and stage $0$, guarantees that our staged output is necessarily well-typed and well-staged. That is, all the special operations for moving between stages are guaranteed to be evaluated and substituted by stage $0$ code. As a result, for the purpose of type checking our metaprograms to justify the soundness of staging, we introduce two-level type theory.
+
+% --- Alternative ---
+
+The result of staging $\mathsf{double}_0$ was a well-typed function that only uses terms and constructors native to stage 0. We would like to generalize so any metaprogram should be staged to a program that only uses terms and constructors from stage 0. We use the term ``sound'' to describe such staging algorithm.
+
+\begin{definition}[Soundness, Well-staged, Well-formedness]
+    A staging algorithm is \emph{sound} if for all input program with stage 0 type, the algorithm outputs a well-typed program containing only stage 0 terms / constructors, and no lift, quote, or splice.
+    
+    A well-typed output program that contains only stage 0 terms / constructors, and no lift, quote, or splice, is called \emph{well-staged} or \emph{well-formed}.
+\end{definition} 
+To justify the soundness of staging algorithm, we use two-level type theory, which the remaining paper will explore.
+
+
