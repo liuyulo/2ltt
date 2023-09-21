@@ -26,22 +26,22 @@
 \maketitle
 
 \section{Introduction to Staged Compilation}
-\input{10staged}
+\input{01-staged/0-staged}
 
 \subsection{Interaction between Stages}
-\input{11interact}
+\input{01-staged/1-interact}
 
 \subsection{Example of A Staged Program}\label{example-staged}
-\input{11example}
+\input{01-staged/2-example}
 
 \subsection{Soundness of Staging}
-\input{12correct}
+\input{01-staged/3-correct}
 
 \section{Introduction to Two-Level Type Theory}
-\input{20two}
+\input{02-2ltt/0-two}
 
 \subsection{Universes and Type Formers}
-\input{21universe}
+\input{02-2ltt/1-universe}
 
 
 \section{Inference Rules of 2LTT}
@@ -50,17 +50,16 @@ In this section, we analyze the inference rules of 2LTT. As 2LTT is an extension
 
  
 \subsection{Judgments}
-\input{Inference-Rules/Introduction-to-Judgments}
-
-
+\input{03-infer/1-judge.tex}
 
 \subsection{Familiar Inference Rules in the Context of 2LTT}
-\input{Inference-Rules/Familiar-Inference-rules}
+\input{03-infer/2-rules}
 
+\input{03-infer/4-nat}
 
 
 \subsection{Lifting, Quoting, and Splicing}
-\input{Inference-Rules/Lifting-Quoting-Splicing}
+\input{03-infer/3-lift}
 
 
 
@@ -70,27 +69,24 @@ In this section, we provide examples that employ the inference rules as presente
 
 \subsection{Type Derivation for $\mathsf{mul}_1$}
 
-\input{41mul}
+\input{04-apply/1-mul}
 
 \subsection{Staging $\mathsf{double_0}$ Formally}
 
-\input{42double}
+\input{04-apply/2-double.tex}
 
 \section{Discussion}
 We have completed our main objective of applying and type-checking our metaprogram $\mathsf{double}_0$. Now we will discuss some properties of 2LTT that can serve as direction for further exploration.
 
 \subsection{Isomorphism Property of Lifting and Quoting}
-\input{51lift-and-pi}
+\input{05-iso}
 
 
 
 
 \section{Conclusion}
-\input{99concl}
-Should attempt to explore the challenge of allowing type formers to form types using types from different stages. It is my suspicion that the challenge would be considering which universe would the produced type be in
-
-
-
+\input{99-concl}
+% Should attempt to explore the challenge of allowing type formers to form types using types from different stages. It is my suspicion that the challenge would be considering which universe would the produced type be in
 
 \printbibliography
 
