@@ -96,31 +96,31 @@ Since the output of the step function is a $(\Lift\Nat_0)[\p\circ\p,\suc(\q[\p])
 
 
 $$
-\inferrule*[Right=nat-sub]{
-    \inferrule*[Right=suc-sub]{
-        \inferrule*[Right=sub-extension-\circ]{
-            \inferrule*[Right=sub-composition]{
-                \inferrule*[right=sub-extension]{
-                    \inferrule*[right=nat-sub]{
-                        \inferrule*[Right=suc]{
-                            \inferrule*[Right=nat-sub]{
-                                \inferrule*[Right=sub-second-proj]{
-                                    \Gamma\vdash_{10}\Nat_1
-                                }{\Gamma\ext\Nat_1\vdash_{10}\q:\Nat[\p]}
-                            }{\Gamma\ext\Nat_1\vdash_{10}\q:\Nat_1}
-                        }{\Gamma\ext\Nat_1\vdash_{10}\suc_1\,\q:\Nat_1}
-                    }{\Gamma\ext\Nat_1\vdash_{10}\suc_1\,\q:\Nat_1[\p]}\,
-                    \inferrule*[Right=sub-first-proj]{
-                        \Gamma\vdash_{10}\Nat_1
-                    }{\Gamma\ext\Nat_1\vdash\p:\Gamma}
-                }{\Gamma\ext\Nat_1\vdash(\p,\suc\,\q):\Gamma\ext\Nat_1}\,
-                \inferrule*[Right=sub-first-proj]{
-                    \Gamma\ext\Nat_1\vdash_{10}\Lift\Nat_0
-                }{\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash\p:\Gamma\ext\Nat}
-            }{\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash(\p,\suc\,\q)\circ\p:\Gamma\ext\Nat_1}
-        }{\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash(\p\circ\p,(\suc\,\q)[\p]):\Gamma\ext\Nat_1}
-    }{\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash(\p\circ\p,\suc(\q[\p])):\Gamma\vdash\Nat_1}
-}{\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash_{00}\Nat_0[\p\circ\p,\suc(\q[\p])]=\Nat_0\quad (1)}
+% \inferrule*[Right=nat-sub]{
+%     \inferrule*[Right=suc-sub]{
+%         \inferrule*[Right=sub-extension-\circ]{
+%             \inferrule*[Right=sub-composition]{
+%                 \inferrule*[right=sub-extension]{
+%                     \inferrule*[right=nat-sub]{
+%                         \inferrule*[Right=suc]{
+%                             \inferrule*[Right=nat-sub]{
+%                                 \inferrule*[Right=sub-second-proj]{
+%                                     \Gamma\vdash_{10}\Nat_1
+%                                 }{\Gamma\ext\Nat_1\vdash_{10}\q:\Nat[\p]}
+%                             }{\Gamma\ext\Nat_1\vdash_{10}\q:\Nat_1}
+%                         }{\Gamma\ext\Nat_1\vdash_{10}\suc_1\,\q:\Nat_1}
+%                     }{\Gamma\ext\Nat_1\vdash_{10}\suc_1\,\q:\Nat_1[\p]}\,
+%                     \inferrule*[Right=sub-first-proj]{
+%                         \Gamma\vdash_{10}\Nat_1
+%                     }{\Gamma\ext\Nat_1\vdash\p:\Gamma}
+%                 }{\Gamma\ext\Nat_1\vdash(\p,\suc\,\q):\Gamma\ext\Nat_1}\,
+%                 \inferrule*[Right=sub-first-proj]{
+%                     \Gamma\ext\Nat_1\vdash_{10}\Lift\Nat_0
+%                 }{\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash\p:\Gamma\ext\Nat}
+%             }{\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash(\p,\suc\,\q)\circ\p:\Gamma\ext\Nat_1}
+%         }{\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash(\p\circ\p,(\suc\,\q)[\p]):\Gamma\ext\Nat_1}
+%     }{\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash(\p\circ\p,\suc(\q[\p])):\Gamma\vdash\Nat_1}
+% }{\Gamma\ext\Nat_1\ext\Lift\Nat_0\vdash_{00}\Nat_0[\p\circ\p,\suc(\q[\p])]=\Nat_0\quad (1)}
 $$
 
 $$
