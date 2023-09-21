@@ -22,9 +22,13 @@ jobs:
           key: Tectonic-${{ hashFiles('dist/**/.tex') }}
           restore-keys: Tectonic-
 
-      - name: Build
+      - name: Build Paper
         run: tectonic -X build
         working-directory: ./paper
+
+      - name: Build Slides
+        run: tectonic -X build
+        working-directory: ./slides
 
       - name: Copy PDF files
         run: |
@@ -36,8 +40,8 @@ jobs:
   deploy:
     needs: build
     permissions:
-      pages: write      
-      id-token: write 
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

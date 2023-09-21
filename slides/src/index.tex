@@ -1,0 +1,364 @@
+\documentclass[handout]{beamer}
+% \documentclass{beamer}
+\input{preamble}
+\addbibresource{refs.bib}
+\input{lstlisting}
+
+\setbeamercolor{frame number in head/foot}{fg=black}
+\setbeamerfont{frame number in head/foot}{size=\small}
+% \setbeameroption{show notes on second screen=right}
+\setbeamertemplate{footline}[frame number]
+\lstset{language=pie}
+
+\newenvironment{fr}[1][]
+{\begin{frame}[fragile,environment=fr,#1]}
+{\end{frame}}
+
+\title{Staged Compilation with Two-Level Type Theory}
+\date{2023-08-11}
+
+% \AtBeginSection[]{
+%   \begin{frame}
+%     \frametitle{Table of Contents}
+%     \tableofcontents[currentsection]
+%   \end{frame}
+% }
+
+\begin{document}
+
+\frame{\titlepage}
+% \begin{frame}
+% \frametitle{Table of Contents}
+% \tableofcontents
+% \end{frame}
+
+\section{Staged Compilation}
+\begin{frame}{\secname}
+Staged compilation separates code compilation in at two stages.
+\begin{itemize}
+    \item \pause Compile time (aka meta-level, indexed 1) stage and runtime (aka object-level, indexed 0) stage.
+    \item \pause Each stage can have their own language.
+\end{itemize}
+\pause 
+A staging algorithm converts/stages a metaprogram to a program with only runtime language.  
+\begin{itemize}
+    \item\pause A metaprogram is a term with runtime type but uses type/terms from the compile-time language through staging annotations.
+\end{itemize}
+\pause
+Examples where staged compilation is useful:
+    \begin{itemize}
+        \item\pause  Metaprogramming: evaluate the code-generation annotations (e.g. macros, inlining) to runtime language, i.e. without annotations.
+        \item\pause  Domain specific languages: e.g. \href{https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/linq/standard-query-operators-overview}{LINQ} (C\#)
+    \end{itemize}
+    \note{
+    \begin{itemize}
+        \item haskell deriving, rust \#[derives] in conclusion
+    \end{itemize}
+    }
+\end{frame}
+
+\subsection{Two-Level Type Theory}
+\begin{fr}{\subsecname}
+
+A staging algorithm needs to be sound:
+
+\begin{itemize}
+    \item\pause Any well-typed metaprogram should be staged into a well-typed runtime code.
+    \item\pause The resulting code of staging does not use any types/terms from the compile-time language.
+\end{itemize}
+\pause 
+To justify the the soundness of staging
+
+\begin{itemize}
+    \item\pause  Two-level type theory can be applied.
+    \item\pause  Treat the two stages as separate type systems.
+    \item\pause  Restrict the interaction between stages with explicit annotations.
+\end{itemize}
+\pause
+Unlike previous works like MetaML \cite{metaml}, staged compilation with 2LTT supports dependent types.
+
+\note{trade offer}
+\end{fr}
+
+\section{Notation}
+
+\subsection{$\Pi$-Types}
+\begin{fr}{\subsecname}
+
+To adhere to the notations from the original paper on staged compilation \cite{staged}, we introduce new notations in comparison with Pie.
+
+\begin{itemize}
+    \item \pause Dependent function types ($\Pi$-types)
+
+    $$f:(a:A)\to (b:B)\to C$$
+\begin{CenteredBox}
+\lstinline{(claim f (Pi ([a A] [b B]) C))}
+\end{CenteredBox}
+    \item \pause Functions (lambdas)
+    $$f:=\lambda\,a\,b.\,\mathsf{body}$$
+\begin{CenteredBox}
+\lstinline{(define f (lambda (a b) body))}
+\end{CenteredBox}
+\end{itemize}
+\end{fr}
+
+%==============================================================================
+
+
+\section{Moving Between Stages}
+\begin{fr}{\secname}
+    We have two universes of types, one for each stage:
+    \begin{itemize}
+        \item $\U_0$ for the universe of stage 0 (recall 0 is index for runtime/object stage)
+        \item $\U_1$ for the universe of stage 1 (recall 1 is index for compile-time/meta stage)
+    \end{itemize}
+    For interaction between stages, we define three staging annotations on the compile-time level.
+\end{fr}
+
+\subsection{Lifting: Compute Runtime Expressions at Compile-Time}
+
+\begin{frame}{\subsecname}
+    Given $A : \U_0$, we have $\Lift A : \U_1$
+    \begin{itemize}
+        \item The lifted type $\Lift A:\U_1$ is the type of metaprograms that compute runtime expression of type $A:\U_0$.
+    \end{itemize}
+\end{frame}
+
+\subsection{Quoting: Metaprograms from Runtime Terms}
+\begin{fr}{\subsecname}
+Given $t:A$ and $A:\U_0$, we have $\qut{t}:\Lift A$ and $\Lift A: \U_1$
+\begin{itemize}
+    \item The quoted term $\qut{t}:\Lift A$ is a metaprogram that immediately yields the term $t:A$.
+\end{itemize}
+\end{fr}
+
+\subsection{Splicing: Executing Metaprograms During Staging}
+\begin{fr}{\subsecname}
+Given $t:\Lift A$ and $\Lift A: \U_1$, we have $\spl t: A$ and $ A: \U_0$
+\begin{itemize}
+    \item The spliced metaprogram $\spl t$ will be executed during staging, and substituted by result expression.
+\end{itemize}
+
+\end{fr}
+
+\subsection{Moving Between Stages}
+\begin{fr}{\subsecname}
+    With the three staging annotations for moving between stages:
+    \begin{itemize}
+        \item \emph{Lifting}: Given $A : \U_0$, we have $\Lift A : \U_1$
+        \item \emph{Quoting}: Given $t:A$ and $A:\U_0$, we have $\qut{t}:\Lift A$
+        \item \emph{Splicing}: Given $t:\Lift A$ and $\Lift A: \U_1$, we have $\spl t: A$
+    \end{itemize}
+    We have two equalities:
+    $$\begin{aligned}
+        \spl \qut{t} &= t\\
+        \qut{\spl s} &= s
+    \end{aligned}$$
+\end{fr}
+
+%==============================================================================
+
+\section{The Natural Eliminator}
+\begin{fr}{\secname}
+
+We introduce natural numbers for each stage $i\in\{0,1\}$
+$$
+\begin{aligned}
+    \pause\mathsf{Nat}_i&:U_i\\
+    \pause\mathsf{zero}_i&:\mathsf{Nat}_i\\
+    \pause\mathsf{suc}_i&:\mathsf{Nat}_i\to\mathsf{Nat}_i\\
+    \pause\mathsf{NatElim}_i&:(P:\mathsf{Nat}_i\to\mathsf{U}_{i,j})\\
+    &\to P\,\mathsf{zero}_i\\
+    &\to ((n:\mathsf{Nat}_i)\to P\,n\to P\,(\mathsf{suc}_i\,n))\\
+    &\to(t:\mathsf{Nat}_i)\\
+    &\to P\,t\\
+\end{aligned}
+$$
+\pause
+For simplicity, let us define $\mathsf{iter}_i$ to represent \texttt{iter-Nat} from Pie
+$$
+\begin{aligned}
+    \mathsf{iter}_i&:(X:U_i)\to\mathsf{Nat}_i\to X\to (X\to X)\to X\\
+    \mathsf{iter}_i&:=\lambda\,X\,t\,z\,s.\,\mathsf{NatElim}_i\,(\lambda\,\gray n.\,X)\,z\,(\lambda\,\gray n\,\mathsf{acc}.\,s\,\mathsf{acc})\,t\\
+
+\end{aligned}
+$$
+\end{fr}
+
+\subsection{Addition and Multiplication}
+\begin{fr}{\subsecname}
+$$
+\begin{aligned}
+    \mathsf{iter}_i&:(X:U_i)\to\mathsf{Nat}_i\to X\to (X\to X)\to X\\
+    \mathsf{iter}_i&:=\lambda\,X\,t\,z\,s.\,\mathsf{NatElim}_i\,(\lambda\,\gray n.\,X)\,z\,(\lambda\,\gray n\,\mathsf{acc}.\,s\,\mathsf{acc})\,t\\
+\end{aligned}
+$$
+\pause
+Similar to the definition of \texttt+ and \texttt* in Pie, we can implement them in 2LTT as well.
+
+\begin{itemize}
+    \item\pause We put $\mathsf{add}_0$ to stage $0$:
+    $$
+    \begin{aligned}
+        \mathsf{add}_0&:\mathsf{Nat}_0\to\mathsf{Nat}_0\to\mathsf{Nat}_0\\
+        \mathsf{add}_0&:=\lambda\,a\,b.\,\mathsf{iter}_0\,\mathsf{Nat}_0\,a\,b\,(\lambda\,n.\mathsf{suc}_0\,n)\\
+    \end{aligned}
+    $$
+    \item \pause For multiplication, it takes a compile-time number $x:\mathsf{Nat}_1$ and produces a metaprogram that computes the product with $x$ at runtime.
+    $$
+    \begin{aligned}
+        \pause\mathsf{mul}_1&:\mathsf{Nat}_1\to{\Uparrow}\mathsf{Nat}_0\to{\Uparrow}\mathsf{Nat}_0\\
+        \pause\mathsf{mul}_1&=\lambda\,x\,t.\,\mathsf{iter}_1\,({\Uparrow}\mathsf{Nat}_0)\,x\,\langle\mathsf{zero}_0\rangle\,\langle \mathsf{add}_0\,{\sim}t\rangle\\
+    \end{aligned}
+    $$
+\end{itemize}
+\end{fr}
+
+\subsection{The Staging Process}
+\begin{fr}{\subsecname}
+$$
+\begin{aligned}
+\mathsf{iter}_i&:(X:U_i)\to\mathsf{Nat}_i\to X\to (X\to X)\to X\\
+\mathsf{iter}_i&:=\lambda\,X\,t\,z\,s.\,\mathsf{NatElim}_i\,(\lambda\,\gray n.\,X)\,z\,(\lambda\,\gray n\,\mathsf{acc}.\,s\,\mathsf{acc})\,t\\
+\mathsf{add}_0&:\mathsf{Nat}_0\to\mathsf{Nat}_0\to\mathsf{Nat}_0\\
+\mathsf{add}_0&:=\lambda\,a\,b.\,\mathsf{iter}_0\,\mathsf{Nat}_0\,a\,b\,(\lambda\,n.\mathsf{suc}_0\,n)\\
+\mathsf{mul}_1&:\mathsf{Nat}_1\to{\Uparrow}\mathsf{Nat}_0\to{\Uparrow}\mathsf{Nat}_0\\
+\mathsf{mul}_1&=\lambda\,x\,t.\,\mathsf{iter}_1\,({\Uparrow}\mathsf{Nat}_0)\,x\,\langle\mathsf{zero}_0\rangle\,\langle \mathsf{add}_0\,{\sim}t\rangle\\
+\end{aligned}
+$$
+
+
+\pause With $\mathsf{add}_0$ being a function on stage $0$ and $\mathsf{mul}_1$ on stage $1$, a metaprogram, for instance\pause
+$$
+\begin{aligned}
+    \mathsf{double}&:\mathsf{Nat}_0\to\mathsf{Nat}_0\\
+    \mathsf{double}&:=\lambda\,x.\,{\sim}(\mathsf{mul}_1\,2\,\langle x\rangle)\\
+\end{aligned}
+$$
+
+will get staged to \pause 
+$$
+\begin{aligned}
+    \mathsf{double}&:=\lambda\,x.\,\mathsf{add}_0\,x\,(\mathsf{add}_0\,x\,\mathsf{zero}_0)
+\end{aligned}
+$$
+\end{fr}
+
+
+
+%==============================================================================
+
+\section{Formal Inference Rules}
+\begin{fr}{\secname}
+    \begin{mathparpagebreakable}
+        \inferrule*[lab=lift]
+                 {\Gamma \vdash_{0,j} A}
+                 {\Gamma \vdash_{1,j} \Lift A}
+    
+        \inferrule*[lab=quote]
+                 {\Gamma \vdash_{0,j} t : A}
+                 {\Gamma \vdash_{1,j} \qut{t} : \Lift A}
+    
+        \inferrule*[lab=splice]
+                 {\Gamma \vdash_{1,j} t : \Lift A}
+                 {\Gamma \vdash_{0,j} \spl{t} : A}
+
+        \inferrule*[lab=quote-splice]
+             {\Gamma \vdash_{1,j} t : \Lift A}
+             {\Gamma \vdash_{1,j} \qut{\spl{t}} = t : \Lift A}
+
+    \inferrule*[lab=splice-quote]
+             {\Gamma \vdash_{0,j} t : A}
+             {\Gamma \vdash_{0,j} \spl{\qut{t}} = t : A}
+    \end{mathparpagebreakable}
+\end{fr}
+
+%==============================================================================
+
+\section{Limitation of Staging}
+\begin{fr}{\secname}
+The original purpose of 2LTT is to express meta-theoretical statements about homotopy type theory (HoTT)
+    \begin{itemize}
+        \item\pause ``From a type in HoTT, we can extract a statement that can be phrased in the meta-theory. From a meta-theoretical statement \emph{about} HoTT, it is not always possible to construct a type. Thus, we can convert inner types into outer one, but not always vice versa.'' \cite{2ltt}
+        \item\pause Therefore cannot splice arbitrary stage 1 term.
+        \item\pause Stage 0 don't always have ways to represent types in stage 1.
+        \item\pause $\spl \zero_1$ would be invalid.
+    \end{itemize}
+\end{fr}
+
+%==============================================================================
+
+\section{Isomorphism Between Types}
+\begin{fr}{\secname}
+    \begin{align*}
+    \Lift ((a: A) \to B\,a) &\simeq (a: \Lift A) \to \Lift (B\,\spl a) \\ \\
+    \Lift ((a:A) \times B\,a) &\simeq ((a: \Lift A) \times \Lift (B\,\spl a)) \\
+    \end{align*}
+\end{fr}
+
+%==============================================================================
+
+\subsection{Isomorphism Example}
+\begin{fr}{\subsecname}
+    \centering
+    \begin{align*}
+      & \hspace{-10em}\rlap{$\mit{pres}_\to : \Lift((x : A) \to B\,x) \to ((x : \Lift A) \to \Lift\,(B\,\spl x))$}\\
+      & \hspace{-10em}\mit{pres}_\to\,f := \lambda\,x.\,\,\qut{\spl f\,\spl x}\\
+      & \hspace{-10em}\mit{pres}_\to := \lambda\,f\,x.\,\,\qut{\spl f\,\spl x}\\
+    \\
+      & \hspace{-10em}\rlap{$\mit{pres}_\to^{-1} : ((x : \Lift A) \to \Lift\,(B\,\spl x)) \to \Lift((x : A) \to B\,x)$}\\
+      & \hspace{-10em}\mit{pres}_\to^{-1}\,f:= \qut{\lambda\,x.\,\,\spl(f\,\qut{x})} \\
+      & \hspace{-10em}\mit{pres}_\to^{-1}:= \lambda\,f.\,\,\qut{\lambda\,x.\,\,\spl(f\,\qut{x})}
+    \end{align*}
+\end{fr}
+
+%==============================================================================
+
+\begin{fr}{\subsecname}
+    $$
+    \begin{aligned}
+      \mit{pres}_\to (\mit{pres}_\to^{-1} f)&=\,\,\,(\lambda\,f\,x.\,\,\qut{\spl f\,\spl x})\,\, ((\lambda\,f.\,\,\qut{\lambda\,x.\,\,\spl(f\,\qut{x})})\,\, f) \\
+      \pause&=_\beta (\lambda\,f\,x.\,\,\qut{\spl f\,\spl x})\,\, \qut{\lambda\,x.\,\,\spl(f\,\qut{x})}\\
+      \pause&=_\beta \lambda\,x.\,\,\qut{\spl \qut{\lambda\,x.\,\,\spl(f\,\qut{x})}\,\spl x} \\
+      \pause&=\,\,\, \lambda\,x.\,\,\qut{(\lambda\,x.\,\,\spl(f\,\qut{x}))\,\spl x} \\
+      \pause&=_\beta \lambda\,x.\,\,\qut{\spl(f\,\qut{\spl x})} \\
+      \pause&=\,\,\, \lambda\,x.\,\,\qut{\spl(f\, x)} \\
+      \pause&=\,\,\, \lambda\,x.\,\,(f\, x) \\
+      \pause&=_\eta f
+    \end{aligned}
+    $$
+\end{fr}
+
+%==============================================================================
+
+% \section{Limit}
+% \begin{fr}{\secname}
+%     \begin{itemize}
+%         \item ``The lack of elimination principles for $\Lift \blank$ means that we cannot inspect the internal structure of expressions''
+%         \item Cannot find useful mapping $\qut{\Bool_0} \to \Bool_1$
+%     \end{itemize}
+% \end{fr}
+
+%==============================================================================
+
+\section{Result of 2LTT}
+\begin{fr}{\secname}
+    \begin{itemize}
+        \item Staging: Given a program $t : A$, where $A : \U_0$. \emph{Staging} computes metaprograms and replace all splices in $t$ and $A$ with resulting runtime expression.
+        \item 2LTT guarantees resulting computation does not contain more splices.
+        \item Regardless of the body, if you have a runtime type program, it can be turned into a program using strictly stage 0 terms and constructors.
+    \end{itemize}
+\end{fr}
+
+%==============================================================================
+
+\section{Bibliography}
+\begin{fr}{\secname}
+    \printbibliography[heading=none]
+\end{fr}
+
+\begin{frame}{}
+  \centering \Large
+  \emph{End}
+\end{frame}
+\end{document}

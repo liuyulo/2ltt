@@ -1,0 +1,70 @@
+
+\makeatletter
+\newenvironment{CenteredBox}{% 
+\begin{Sbox}}{% Save the content in a box
+\end{Sbox}\centerline{\parbox{\wd\@Sbox}{\TheSbox}}}% And output it centered
+\makeatother
+
+\lstset{
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    % numbers=left,
+    inputencoding=utf8,
+    % extendedchars=true,
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=4,
+    basicstyle=\ttfamily\footnotesize\color[HTML]{000000},
+    backgroundcolor=\color[HTML]{ffffff},   
+    numberstyle=\color[HTML]{333333},
+    sensitive=true,
+    columns=fullflexible,
+	keepspaces,
+	showstringspaces=false,
+}
+
+\newcommand\blue{\color[HTML]{3eabc9}}
+\newcommand\lime{\color[HTML]{20b027}}
+
+\lstdefinelanguage{pie} {
+	morecomment=[l]{;},
+	commentstyle={\color[HTML]{7f7f7f}\slshape},
+    literate=%
+        {lambda}{{\color[HTML]{20b027}λ}}1
+        {Sigma}{{\color[HTML]{3eabc9}Σ}}1
+        {TODO}{{\color[HTML]{ff0000}TODO}}4
+        {\\ne}{≠}1
+        {\\bot}{⊥}1
+        {\\neg}{¬}1
+        {_1}{₁}1
+        {\\forall}{∀}1
+        {!=}{!=}2
+        {\\rarr}{→}1
+        {_n}{ₙ}1
+        {Pi}{{\color[HTML]{3eabc9}Π}}1,
+    % type constructors
+	keywords={
+        Pi,->,Nat,U,Even,Sigma,Odd,
+        Pair,=,Absurd,Trivial,Either,
+        Dec,Vec
+    },
+    keywordstyle=\blue,
+    % value constructors
+	keywords={[2]
+        lambda,+,*,add1,the,cons,same,car,
+        cong,cdr,iter-Nat,replace,rec-Nat,
+        which-Nat,left,right,ind-Vec,vec::,
+        =consequence, sub1=, use-Nat=, zero-not-add1
+    },
+    keywordstyle={[2]\lime},
+    % special
+    keywords={[3]
+        zero, nil, vecnil, 0, define, claim,
+    },
+    keywordstyle={[3]\color[HTML]{0000ff}},
+	alsoletter={',-,>,:,=,+,*},
+}

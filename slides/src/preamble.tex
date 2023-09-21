@@ -1,0 +1,99 @@
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{multirow,longtable,booktabs,array}
+\usepackage{amsfonts}
+\usepackage{listings}
+\usepackage{fontspec}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{tikz}
+\usepackage{fancybox} % https://tex.stackexchange.com/a/85492
+\usepackage{mathpartir}
+
+\usepackage[style=alphabetic,sorting=ynt]{biblatex}
+\addbibresource{refs.bib}
+
+
+\newcommand\rarr\rightarrow
+\newcommand\gray{\textcolor{gray}}
+
+\setmonofont{iosevka-custom-regular.ttf}
+\setmainfont{Roboto-Regular.ttf}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=cyan,
+}
+
+
+\newcommand{\Lift}{{\Uparrow}}
+\newcommand{\spl}{{\sim}}
+\newcommand{\qut}[1]{\langle #1\rangle}
+
+\renewcommand{\mit}[1]{\mathit{#1}}
+\newcommand{\msf}[1]{\mathsf{#1}}
+\newcommand{\mbb}[1]{\mathbb{#1}}
+\newcommand{\mbf}[1]{\mathbf{#1}}
+\newcommand{\bs}[1]{\boldsymbol{#1}}
+\newcommand{\wh}[1]{\widehat{#1}}
+\newcommand{\ext}{\triangleright}
+\newcommand{\Code}{\msf{Code}}
+\newcommand{\El}{\msf{El}}
+\newcommand{\lam}{\msf{lam}}
+\newcommand{\app}{\msf{app}}
+\newcommand{\NatElim}{\msf{NatElim}}
+\newcommand{\y}{\msf{y}}
+
+\newcommand{\U}{\msf{U}}
+\newcommand{\Con}{\msf{Con}}
+\newcommand{\Sub}{\msf{Sub}}
+\newcommand{\Ty}{\msf{Ty}}
+\newcommand{\Tm}{\msf{Tm}}
+
+\newcommand{\Set}{\mathsf{Set}}
+\newcommand{\Prop}{\mathsf{Prop}}
+\newcommand{\Rep}{\msf{Rep}}
+\newcommand{\blank}{{\mathord{\hspace{1pt}\text{--}\hspace{1pt}}}}
+\newcommand{\emb}[1]{\ulcorner#1\urcorner}
+
+
+\newcommand{\refl}{\msf{refl}}
+\newcommand{\Bool}{\msf{Bool}}
+\newcommand{\true}{\msf{true}}
+\newcommand{\false}{\msf{false}}
+\newcommand{\True}{\msf{True}}
+\newcommand{\False}{\msf{False}}
+\newcommand{\List}{\msf{List}}
+\newcommand{\nil}{\msf{nil}}
+\newcommand{\cons}{\msf{cons}}
+\newcommand{\Nat}{\msf{Nat}}
+\newcommand{\zero}{\msf{zero}}
+\newcommand{\suc}{\msf{suc}}
+\renewcommand{\tt}{\msf{tt}}
+\newcommand{\fst}{\msf{fst}}
+\newcommand{\snd}{\msf{snd}}
+\newcommand{\mylet}{\msf{let}}
+\newcommand{\emptycon}{\scaleobj{.75}\bullet}
+\newcommand{\id}{\msf{id}}
+
+\newcommand{\p}{\mathsf{p}}
+\newcommand{\q}{\mathsf{q}}
+
+
+\theoremstyle{plain}
+% \newtheorem{theorem}{Theorem}[section]
+
+\theoremstyle{definition}
+% \newtheorem{definition}{Definition}[section]
+% \newtheorem{example}{Example}[subsection]
+\newtheorem{property}{Property}[section]
+% \newtheorem{corollary}{Corollary}[theorem]
+% \newtheorem{lemma}[theorem]{Lemma}
+
+\theoremstyle{remark}
+\newtheorem{notation}{Notation}
+\newtheorem{remark}{Remark}
+
