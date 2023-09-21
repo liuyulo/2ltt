@@ -24,9 +24,15 @@ jobs:
 
       - name: Build
         run: tectonic -X build
+        working-directory: ./paper
+
+      - name: Copy PDF files
+        run: |
+          mkdir public
+          find -name '*.pdf' | xargs -If mv f public
 
       - uses: actions/upload-pages-artifact@v1
-        with: { name: github-pages, path: build/paper }
+        with: { name: github-pages, path: public }
   deploy:
     needs: build
     permissions:
